@@ -86,3 +86,4 @@ DerivedDataCache/*
 
 # Project specific files
 Plugins/*
+/Content/Assets
