@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "BlasterCharacter.generated.h"
 
+class UWidgetComponent;
 class UInputMappingContext;
 class UCameraComponent;
 class USpringArmComponent;
@@ -34,4 +35,7 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = Input)
 	TObjectPtr<UInputMappingContext> BlasterMappingContext;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Indicators, meta = (AllowPrivateAccess = true))
+	TObjectPtr<UWidgetComponent> OverheadWidget;
 };
