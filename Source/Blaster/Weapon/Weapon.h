@@ -29,6 +29,8 @@ public:
 
 	void ShowPickupWidget(const bool bShowWidget) const;
 
+	FORCEINLINE void SetWeaponState(const EWeaponState InState) { WeaponState = InState; }
+
 protected:
 	virtual void BeginPlay() override;
 
