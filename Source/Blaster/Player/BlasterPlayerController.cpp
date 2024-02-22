@@ -27,6 +27,8 @@ void ABlasterPlayerController::SetupInputComponent()
 	BlasterInputComponent->BindNativeAction(InputConfig, this, BlasterGameplayTags::InputTag_Jump, ETriggerEvent::Triggered, &ThisClass::Input_Jump, false);
 	BlasterInputComponent->BindNativeAction(InputConfig, this, BlasterGameplayTags::InputTag_Crouch, ETriggerEvent::Triggered, &ThisClass::Input_Crouch, false);
 	BlasterInputComponent->BindNativeAction(InputConfig, this, BlasterGameplayTags::InputTag_Equip, ETriggerEvent::Triggered, &ThisClass::Input_Equip, false);
+	BlasterInputComponent->BindNativeAction(InputConfig, this, BlasterGameplayTags::InputTag_Aim, ETriggerEvent::Started, &ThisClass::Input_AimPressed, false);
+	BlasterInputComponent->BindNativeAction(InputConfig, this, BlasterGameplayTags::InputTag_Aim, ETriggerEvent::Completed, &ThisClass::Input_AimReleased, false);
 }
 
 void ABlasterPlayerController::Input_Move(const FInputActionValue& InputActionValue)
@@ -84,6 +86,20 @@ void ABlasterPlayerController::Input_Equip(const FInputActionValue& InputActionV
 	if (!GetBlasterCharacter()) return;
 
 	GetBlasterCharacter()->EquipButtonPressed();
+}
+
+void ABlasterPlayerController::Input_AimPressed(const FInputActionValue& InputActionValue)
+{
+	if (!GetBlasterCharacter()) return;
+
+	GetBlasterCharacter()->AimButtonPressed();
+}
+
+void ABlasterPlayerController::Input_AimReleased(const FInputActionValue& InputActionValue)
+{
+	if (!GetBlasterCharacter()) return;
+	
+	GetBlasterCharacter()->AimButtonReleased();
 }
 
 void ABlasterPlayerController::Input_AbilityInputTagPressed(FGameplayTag InputTag)

@@ -30,6 +30,8 @@ public:
 	virtual void PostInitializeComponents() override;
 
 	void EquipButtonPressed();
+	void AimButtonPressed();
+	void AimButtonReleased();
 
 	void ToggleCrouch();
 	
@@ -37,6 +39,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	bool IsWeaponEquipped() const;
+
+	UFUNCTION(BlueprintCallable)
+	bool IsAiming() const;
 
 protected:
 	virtual void BeginPlay() override;
