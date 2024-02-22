@@ -32,8 +32,11 @@ protected:
 private:
 	TObjectPtr<ABlasterCharacter> Character;
 
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing = OnRep_EquippedWeapon)
 	TObjectPtr<AWeapon> EquippedWeapon;
+
+	UFUNCTION()
+	void OnRep_EquippedWeapon();
 
 	UPROPERTY(Replicated)
 	bool bAiming;
