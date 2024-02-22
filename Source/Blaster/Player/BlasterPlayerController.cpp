@@ -25,6 +25,7 @@ void ABlasterPlayerController::SetupInputComponent()
 	BlasterInputComponent->BindNativeAction(InputConfig, this, BlasterGameplayTags::InputTag_Move, ETriggerEvent::Triggered, &ThisClass::Input_Move, false);
 	BlasterInputComponent->BindNativeAction(InputConfig, this, BlasterGameplayTags::InputTag_Look, ETriggerEvent::Triggered, &ThisClass::Input_Look, false);
 	BlasterInputComponent->BindNativeAction(InputConfig, this, BlasterGameplayTags::InputTag_Jump, ETriggerEvent::Triggered, &ThisClass::Input_Jump, false);
+	BlasterInputComponent->BindNativeAction(InputConfig, this, BlasterGameplayTags::InputTag_Crouch, ETriggerEvent::Triggered, &ThisClass::Input_Crouch, false);
 	BlasterInputComponent->BindNativeAction(InputConfig, this, BlasterGameplayTags::InputTag_Equip, ETriggerEvent::Triggered, &ThisClass::Input_Equip, false);
 }
 
@@ -69,6 +70,13 @@ void ABlasterPlayerController::Input_Jump(const FInputActionValue& InputActionVa
 	if (!GetCharacter()) return;
 
 	GetCharacter()->Jump();
+}
+
+void ABlasterPlayerController::Input_Crouch(const FInputActionValue& InputActionValue)
+{
+	if (!GetBlasterCharacter()) return;
+
+	GetBlasterCharacter()->ToggleCrouch();
 }
 
 void ABlasterPlayerController::Input_Equip(const FInputActionValue& InputActionValue)

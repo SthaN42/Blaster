@@ -30,6 +30,7 @@ protected:
 	void Input_Move(const FInputActionValue& InputActionValue);
 	void Input_Look(const FInputActionValue& InputActionValue);
 	void Input_Jump(const FInputActionValue& InputActionValue);
+	void Input_Crouch(const FInputActionValue& InputActionValue);
 	void Input_Equip(const FInputActionValue& InputActionValue);
 
 	void Input_AbilityInputTagPressed(FGameplayTag InputTag);

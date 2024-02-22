@@ -27,6 +27,8 @@ ABlasterCharacter::ABlasterCharacter()
 
 	bUseControllerRotationYaw = false;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
+	
+	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
 
 	OverheadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidget"));
 	OverheadWidget->SetupAttachment(RootComponent);
@@ -92,6 +94,20 @@ void ABlasterCharacter::EquipButtonPressed()
 	else
 	{
 		ServerEquipButtonPressed();
+	}
+}
+
+void ABlasterCharacter::ToggleCrouch()
+{
+	const UCharacterMovementComponent* MoveComp = GetCharacterMovement();
+	
+	if (bIsCrouched || MoveComp->bWantsToCrouch)
+	{
+		UnCrouch();
+	}
+	else if (MoveComp->IsMovingOnGround())
+	{
+		Crouch();
 	}
 }
 

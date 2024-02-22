@@ -30,6 +30,8 @@ public:
 	virtual void PostInitializeComponents() override;
 
 	void EquipButtonPressed();
+
+	void ToggleCrouch();
 	
 	void SetOverlappingWeapon(AWeapon* InWeapon);
 
