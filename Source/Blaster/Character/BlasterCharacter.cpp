@@ -82,7 +82,22 @@ void ABlasterCharacter::PostInitializeComponents()
 
 void ABlasterCharacter::EquipButtonPressed()
 {
-	if (Combat && HasAuthority())
+	if (HasAuthority())
+	{
+		if (Combat)
+		{
+			Combat->EquipWeapon(OverlappingWeapon);
+		}
+	}
+	else
+	{
+		ServerEquipButtonPressed();
+	}
+}
+
+void ABlasterCharacter::ServerEquipButtonPressed_Implementation()
+{
+	if (Combat)
 	{
 		Combat->EquipWeapon(OverlappingWeapon);
 	}

@@ -57,4 +57,7 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category = "Combat")
 	TObjectPtr<UCombatComponent> Combat;
+
+	UFUNCTION(Server, Reliable)
+	void ServerEquipButtonPressed();
 };
