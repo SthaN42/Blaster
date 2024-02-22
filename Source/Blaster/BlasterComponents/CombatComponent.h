@@ -19,6 +19,8 @@ public:
 	UCombatComponent();
 	friend ABlasterCharacter;
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 	void EquipWeapon(AWeapon* WeaponToEquip);
 	
 protected:
@@ -26,5 +28,7 @@ protected:
 
 private:
 	TObjectPtr<ABlasterCharacter> Character;
+
+	UPROPERTY(Replicated)
 	TObjectPtr<AWeapon> EquippedWeapon;
 };

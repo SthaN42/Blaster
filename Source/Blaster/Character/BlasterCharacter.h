@@ -33,6 +33,9 @@ public:
 	
 	void SetOverlappingWeapon(AWeapon* InWeapon);
 
+	UFUNCTION(BlueprintCallable)
+	bool IsWeaponEquipped() const;
+
 protected:
 	virtual void BeginPlay() override;
 
