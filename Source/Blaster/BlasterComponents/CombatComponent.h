@@ -19,6 +19,8 @@ public:
 	UCombatComponent();
 	friend ABlasterCharacter;
 
+	virtual void BeginPlay() override;
+
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	void EquipWeapon(AWeapon* WeaponToEquip);
@@ -40,4 +42,10 @@ private:
 
 	UPROPERTY(Replicated)
 	bool bAiming;
+
+	UPROPERTY(EditAnywhere, Category = "Character Speed")
+	float BaseWalkSpeed = 600.f;
+	
+	UPROPERTY(EditAnywhere, Category = "Character Speed")
+	float AimWalkSpeed = 400.f;
 };
