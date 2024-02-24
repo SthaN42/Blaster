@@ -42,9 +42,14 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	bool IsAiming() const;
+	
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE float GetAO_Yaw() const { return AO_Yaw; }
 
 protected:
 	virtual void BeginPlay() override;
+
+	void AimOffset(float DeltaTime);
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
@@ -70,4 +75,7 @@ private:
 
 	UFUNCTION(Server, Reliable)
 	void ServerEquipButtonPressed();
+
+	float AO_Yaw;
+	FRotator StartingAimRotation;
 };
