@@ -41,6 +41,9 @@ public:
 	bool IsWeaponEquipped() const;
 
 	UFUNCTION(BlueprintCallable)
+	AWeapon* GetEquippedWeapon() const;
+	
+	UFUNCTION(BlueprintCallable)
 	bool IsAiming() const;
 	
 	UFUNCTION(BlueprintCallable)

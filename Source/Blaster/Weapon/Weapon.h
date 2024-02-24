@@ -34,6 +34,9 @@ public:
 	void SetWeaponState(const EWeaponState InState);
 	FORCEINLINE USphereComponent* GetAreaSphere() const { return AreaSphere; }
 
+	UFUNCTION(BlueprintCallable)
+	USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMesh; }
+
 protected:
 	virtual void BeginPlay() override;
 
