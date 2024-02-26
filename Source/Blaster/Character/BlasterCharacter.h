@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "BlasterCharacter.generated.h"
 
+enum class ETurningInPlace : uint8;
 class UCombatComponent;
 class AWeapon;
 class UWidgetComponent;
@@ -49,6 +50,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE float GetAO_Yaw() const { return AO_Yaw; }
 
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurningInPlace; }
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -80,5 +84,9 @@ private:
 	void ServerEquipButtonPressed();
 
 	float AO_Yaw;
+	float InterpAO_Yaw;
 	FRotator StartingAimRotation;
+
+	ETurningInPlace TurningInPlace;
+	void TurnInPlace(float DeltaTime);
 };
