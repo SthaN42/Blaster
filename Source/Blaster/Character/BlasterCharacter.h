@@ -34,6 +34,7 @@ public:
 	void AimButtonPressed();
 	void AimButtonReleased();
 
+	virtual void Jump() override;
 	void ToggleCrouch();
 	
 	void SetOverlappingWeapon(AWeapon* InWeapon);

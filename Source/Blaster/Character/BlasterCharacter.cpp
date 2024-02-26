@@ -19,6 +19,9 @@ ABlasterCharacter::ABlasterCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	NetUpdateFrequency = 66.f;
+	MinNetUpdateFrequency = 33.f;
+
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(GetMesh());
 	CameraBoom->TargetArmLength = 600.f;
@@ -30,6 +33,7 @@ ABlasterCharacter::ABlasterCharacter()
 
 	bUseControllerRotationYaw = false;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
+	GetCharacterMovement()->RotationRate = FRotator(0.f, 0.f, 900.f);
 	
 	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
 
@@ -41,12 +45,26 @@ ABlasterCharacter::ABlasterCharacter()
 
 	Combat = CreateDefaultSubobject<UCombatComponent>("CombatComponent");
 	Combat->SetIsReplicated(true);
+
+	TurningInPlace = ETurningInPlace::ETIP_NotTurning;
 }
 
 void ABlasterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+}
+
+void ABlasterCharacter::Jump()
+{
+	if (bIsCrouched)
+	{
+		UnCrouch();
+	}
+	else
+	{
+		Super::Jump();
+	}
 }
 
 void ABlasterCharacter::AimOffset(float DeltaTime)

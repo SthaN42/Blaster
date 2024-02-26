@@ -69,9 +69,9 @@ void ABlasterPlayerController::Input_Look(const FInputActionValue& InputActionVa
 
 void ABlasterPlayerController::Input_Jump(const FInputActionValue& InputActionValue)
 {
-	if (!GetCharacter()) return;
+	if (!GetBlasterCharacter()) return;
 
-	GetCharacter()->Jump();
+	GetBlasterCharacter()->Jump();
 }
 
 void ABlasterPlayerController::Input_Crouch(const FInputActionValue& InputActionValue)
