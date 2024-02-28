@@ -177,7 +177,7 @@ void ABlasterCharacter::EquipButtonPressed()
 
 void ABlasterCharacter::AimButtonPressed()
 {
-	if (Combat)
+	if (Combat && Combat->EquippedWeapon)
 	{
 		Combat->SetAiming(true);
 	}
@@ -185,7 +185,7 @@ void ABlasterCharacter::AimButtonPressed()
 
 void ABlasterCharacter::AimButtonReleased()
 {
-	if (Combat)
+	if (Combat && Combat->EquippedWeapon)
 	{
 		Combat->SetAiming(false);
 	}
