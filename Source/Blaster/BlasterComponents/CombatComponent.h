@@ -31,6 +31,8 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void ServerSetAiming(bool bIsAiming);
 
+	void FireButtonPressed(bool bPressed);
+
 private:
 	TObjectPtr<ABlasterCharacter> Character;
 
@@ -42,6 +44,8 @@ private:
 
 	UPROPERTY(Replicated)
 	bool bAiming;
+
+	bool bFireButtonPressed;
 
 	UPROPERTY(EditAnywhere, Category = "Character Speed")
 	float BaseWalkSpeed = 600.f;
