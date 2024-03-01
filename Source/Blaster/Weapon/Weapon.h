@@ -37,6 +37,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMesh; }
 
+	void Fire();
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -61,4 +63,7 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category = "WeaponProperties")
 	TObjectPtr<UWidgetComponent> PickupWidget;
+
+	UPROPERTY(EditAnywhere, Category = "WeaponProperties")
+	TObjectPtr<UAnimationAsset> FireAnimation;
 };
