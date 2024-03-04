@@ -37,7 +37,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMesh; }
 
-	void Fire();
+	virtual void Fire(const FVector& HitTarget);
 
 protected:
 	virtual void BeginPlay() override;
