@@ -3,6 +3,8 @@
 
 #include "Weapon.h"
 
+#include "Casing.h"
+#include "Engine/SkeletalMeshSocket.h"
 #include "Blaster/Character/BlasterCharacter.h"
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
@@ -73,6 +75,18 @@ void AWeapon::Fire(const FVector& HitTarget)
 	if (FireAnimation)
 	{
 		WeaponMesh->PlayAnimation(FireAnimation, false);
+	}
+	if (CasingClass)
+	{
+		if (const USkeletalMeshSocket* CasingSocket = WeaponMesh->GetSocketByName(CasingSpawnSocketName))
+		{
+			const FTransform SocketTransform = CasingSocket->GetSocketTransform(WeaponMesh);
+			
+			if (UWorld* World = GetWorld())
+			{
+				World->SpawnActor<ACasing>(CasingClass, SocketTransform.GetLocation(), SocketTransform.GetRotation().Rotator());
+			}
+		}
 	}
 }
 

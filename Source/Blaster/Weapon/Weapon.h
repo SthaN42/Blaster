@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Weapon.generated.h"
 
+class ACasing;
 class UWidgetComponent;
 class USphereComponent;
 
@@ -66,4 +67,10 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "WeaponProperties")
 	TObjectPtr<UAnimationAsset> FireAnimation;
+	
+	UPROPERTY(EditAnywhere, Category = "WeaponProperties")
+	TSubclassOf<ACasing> CasingClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "WeaponProperties")
+	FName CasingSpawnSocketName;
 };
