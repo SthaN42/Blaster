@@ -133,11 +133,11 @@ void UCombatComponent::SetHUDCrosshairs(float DeltaTime)
 {
 	if (Character == nullptr || Character->Controller == nullptr) return;
 
-	Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
+	if (Controller == nullptr) Controller = Cast<ABlasterPlayerController>(Character->Controller)
 	
 	if (Controller)
 	{
-		HUD = HUD == nullptr ? Cast<ABlasterHUD>(Controller->GetHUD()) : HUD;
+		if (HUD == nullptr) HUD = Cast<ABlasterHUD>(Controller->GetHUD());
 
 		if (HUD)
 		{
