@@ -49,6 +49,13 @@ ABlasterCharacter::ABlasterCharacter()
 	TurningInPlace = ETurningInPlace::ETIP_NotTurning;
 }
 
+FVector ABlasterCharacter::GetHitTarget() const
+{
+	if (Combat == nullptr) return FVector();
+
+	return Combat->HitTarget;
+}
+
 void ABlasterCharacter::BeginPlay()
 {
 	Super::BeginPlay();

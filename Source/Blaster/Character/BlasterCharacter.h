@@ -57,6 +57,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurningInPlace; }
 
+	UFUNCTION(BlueprintCallable)
+	FVector GetHitTarget() const;
+
 protected:
 	virtual void BeginPlay() override;
 
