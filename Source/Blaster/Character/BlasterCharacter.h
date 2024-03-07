@@ -101,4 +101,15 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	TObjectPtr<UAnimMontage> FireWeaponMontage;
+
+	/* Camera position */
+	
+	float DefaultCameraPosition_Z;
+	
+	float CurrentCameraPosition_Z;
+
+	UPROPERTY(EditAnywhere, Category = "Camera")
+	float CrouchedCameraInterpSpeed = 10.f;
+	
+	void InterpCameraPosition(float DeltaTime);
 };

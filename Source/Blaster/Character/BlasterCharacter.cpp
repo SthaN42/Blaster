@@ -60,6 +60,11 @@ void ABlasterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	if (CameraBoom)
+	{
+		DefaultCameraPosition_Z = CameraBoom->SocketOffset.Z;
+		CurrentCameraPosition_Z = DefaultCameraPosition_Z;
+	}
 }
 
 void ABlasterCharacter::Jump()
@@ -127,11 +132,29 @@ void ABlasterCharacter::TurnInPlace(float DeltaTime)
 	}
 }
 
+void ABlasterCharacter::InterpCameraPosition(float DeltaTime)
+{
+	if (CameraBoom == nullptr) return;
+
+	if (bIsCrouched)
+	{
+		CurrentCameraPosition_Z = FMath::FInterpTo(CurrentCameraPosition_Z, CrouchedEyeHeight, DeltaTime, CrouchedCameraInterpSpeed);
+	}
+	else
+	{
+		CurrentCameraPosition_Z = FMath::FInterpTo(CurrentCameraPosition_Z, DefaultCameraPosition_Z, DeltaTime, CrouchedCameraInterpSpeed);
+	}
+
+	CameraBoom->SocketOffset.Z = CurrentCameraPosition_Z;
+}
+
 void ABlasterCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 	AimOffset(DeltaTime);
+
+	InterpCameraPosition(DeltaTime);
 }
 
 void ABlasterCharacter::PawnClientRestart()
