@@ -38,6 +38,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMesh; }
 
+	FORCEINLINE float GetZoomedFOV() const { return ZoomedFOV; }
+	FORCEINLINE float GetZoomInterpSpeed() const { return ZoomInterpSpeed; }
+
 	virtual void Fire(const FVector& HitTarget);
 
 	/* Weapon crosshair textures */
@@ -55,6 +58,14 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Crosshairs")
 	TObjectPtr<UTexture2D> CrosshairBottom;
+
+	/* Zoomed FOV while aiming */
+
+	UPROPERTY(EditAnywhere, Category = "Zoom")
+	float ZoomedFOV = 30.f;
+
+	UPROPERTY(EditAnywhere, Category = "Zoom")
+	float ZoomInterpSpeed = 20.f;
 
 protected:
 	virtual void BeginPlay() override;

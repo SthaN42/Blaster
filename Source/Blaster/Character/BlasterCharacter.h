@@ -60,6 +60,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FVector GetHitTarget() const;
 
+	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
 protected:
 	virtual void BeginPlay() override;
 
