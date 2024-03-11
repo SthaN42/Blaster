@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Blaster/UI/BlasterHUD.h"
 #include "Components/ActorComponent.h"
 #include "CombatComponent.generated.h"
 
@@ -73,6 +74,8 @@ private:
 	float AimWalkSpeed = 400.f;
 
 	/* HUD and Crosshair */
+	FHUDPackage HUDPackage;
+	
 	float CrosshairVelocityFactor;
 	float CrosshairInAirFactor;
 	float CrosshairAimFactor;
