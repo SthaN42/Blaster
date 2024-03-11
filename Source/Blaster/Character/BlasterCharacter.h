@@ -33,6 +33,9 @@ public:
 
 	void PlayFireMontage(bool bAiming);
 
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastHit();
+
 	void EquipButtonPressed();
 	void AimButtonPressed();
 	void AimButtonReleased();
@@ -68,6 +71,8 @@ protected:
 
 	void AimOffset(float DeltaTime);
 
+	void PlayHitReactMontage();
+
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
 	TObjectPtr<USpringArmComponent> CameraBoom;
@@ -93,6 +98,8 @@ private:
 	UFUNCTION(Server, Reliable)
 	void ServerEquipButtonPressed();
 
+	/* Animation */
+
 	float AO_Yaw;
 	float InterpAO_Yaw;
 	FRotator StartingAimRotation;
@@ -102,6 +109,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	TObjectPtr<UAnimMontage> FireWeaponMontage;
+
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	TObjectPtr<UAnimMontage> HitReactMontage;
 
 	/* Camera position */
 	
