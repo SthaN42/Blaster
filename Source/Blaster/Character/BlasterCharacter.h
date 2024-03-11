@@ -113,4 +113,10 @@ private:
 	float CrouchedCameraInterpSpeed = 10.f;
 	
 	void InterpCameraPosition(float DeltaTime);
+
+	void HideCharacterIfCameraClose() const;
+
+	/* Distance from the camera to the character where we'll start to hide the character for better visibility */
+	UPROPERTY(EditAnywhere, Category = "Camera")
+	float CameraThreshold = 200.f;
 };

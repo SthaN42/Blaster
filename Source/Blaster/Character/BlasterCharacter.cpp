@@ -135,6 +135,8 @@ void ABlasterCharacter::TurnInPlace(float DeltaTime)
 
 void ABlasterCharacter::InterpCameraPosition(float DeltaTime)
 {
+	if (!IsLocallyControlled()) return;
+	
 	if (CameraBoom == nullptr) return;
 
 	if (bIsCrouched)
@@ -149,6 +151,36 @@ void ABlasterCharacter::InterpCameraPosition(float DeltaTime)
 	CameraBoom->SocketOffset.Z = CurrentCameraPosition_Z;
 }
 
+void ABlasterCharacter::HideCharacterIfCameraClose() const
+{
+	if (!IsLocallyControlled()) return;
+
+	const bool bCameraTooClose = (FollowCamera->GetComponentLocation() - GetActorLocation()).Size() < CameraThreshold;
+
+	GetMesh()->SetVisibility(!bCameraTooClose);
+
+	if (Combat && Combat->EquippedWeapon && Combat->EquippedWeapon->GetWeaponMesh())
+	{
+		Combat->EquippedWeapon->GetWeaponMesh()->bOwnerNoSee = bCameraTooClose;
+	}
+	// if ((FollowCamera->GetComponentLocation() - GetActorLocation()).Size() < CameraThreshold)
+	// {
+	// 	GetMesh()->SetVisibility(false);
+	// 	if (Combat && Combat->EquippedWeapon && Combat->EquippedWeapon->GetWeaponMesh())
+	// 	{
+	// 		Combat->EquippedWeapon->GetWeaponMesh()->bOwnerNoSee = true;
+	// 	}
+	// }
+	// else
+	// {
+	// 	GetMesh()->SetVisibility(true);
+	// 	if (Combat && Combat->EquippedWeapon && Combat->EquippedWeapon->GetWeaponMesh())
+	// 	{
+	// 		Combat->EquippedWeapon->GetWeaponMesh()->bOwnerNoSee = false;
+	// 	}
+	// }
+}
+
 void ABlasterCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -156,6 +188,8 @@ void ABlasterCharacter::Tick(float DeltaTime)
 	AimOffset(DeltaTime);
 
 	InterpCameraPosition(DeltaTime);
+	
+	HideCharacterIfCameraClose();
 }
 
 void ABlasterCharacter::PawnClientRestart()
