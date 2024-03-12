@@ -31,10 +31,12 @@ public:
 
 	virtual void PostInitializeComponents() override;
 
-	void PlayFireMontage(bool bAiming);
+	void PlayFireMontage(bool bAiming) const;
 
 	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastHit();
+
+	virtual void OnRep_ReplicatedMovement() override;
 
 	void EquipButtonPressed();
 	void AimButtonPressed();
@@ -43,6 +45,8 @@ public:
 
 	virtual void Jump() override;
 	void ToggleCrouch();
+
+	/* Getters / Setters */
 	
 	void SetOverlappingWeapon(AWeapon* InWeapon);
 
@@ -66,12 +70,17 @@ public:
 
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE bool ShouldRotateRootBone() const { return bRotateRootBone; }
+
 protected:
 	virtual void BeginPlay() override;
 
 	void AimOffset(float DeltaTime);
 
-	void PlayHitReactMontage();
+	void SimProxiesTurn();
+
+	void PlayHitReactMontage() const;
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
@@ -100,9 +109,17 @@ private:
 
 	/* Animation */
 
+	bool bRotateRootBone;
+	float TurnThreshold = 5.f;
+	FRotator ProxyRotationLastFrame;
+	FRotator ProxyRotation;
+	float ProxyYaw;
+	float TimeSinceLastMovementReplication;
+	
 	float AO_Yaw;
 	float InterpAO_Yaw;
 	FRotator StartingAimRotation;
+	float CalculateSpeed() const;
 
 	ETurningInPlace TurningInPlace;
 	void TurnInPlace(float DeltaTime);

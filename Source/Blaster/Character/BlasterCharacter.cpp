@@ -87,13 +87,12 @@ void ABlasterCharacter::AimOffset(float DeltaTime)
 {
 	if (Combat && Combat->EquippedWeapon == nullptr) return;
 	
-	FVector Velocity = GetVelocity();
-	Velocity.Z = 0.f;
-	const float Speed = Velocity.Size();
+	const float Speed = CalculateSpeed();
 	const bool bIsInAir = GetCharacterMovement()->IsFalling();
 
 	if (Speed == 0.f && !bIsInAir) // Standing still, not jumping
 	{
+		bRotateRootBone = true;
 		const FRotator CurrentAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
 		const FRotator DeltaAimRotation = UKismetMathLibrary::NormalizedDeltaRotator(CurrentAimRotation, StartingAimRotation);
 		AO_Yaw = DeltaAimRotation.Yaw;
@@ -106,6 +105,7 @@ void ABlasterCharacter::AimOffset(float DeltaTime)
 	}
 	if (Speed > 0.f || bIsInAir) // Running or jumping
 	{
+		bRotateRootBone = false;
 		StartingAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
 		AO_Yaw = 0.f;
 
@@ -113,13 +113,56 @@ void ABlasterCharacter::AimOffset(float DeltaTime)
 	}
 }
 
+void ABlasterCharacter::SimProxiesTurn()
+{
+	if (Combat == nullptr || Combat->EquippedWeapon == nullptr) return;
+
+	bRotateRootBone = false;
+
+	if (CalculateSpeed() > 0.f)
+	{
+		TurningInPlace = ETurningInPlace::ETIP_NotTurning;
+		return;
+	}
+
+	ProxyRotationLastFrame = ProxyRotation;
+	ProxyRotation = GetActorRotation();
+
+	ProxyYaw = UKismetMathLibrary::NormalizedDeltaRotator(ProxyRotation, ProxyRotationLastFrame).Yaw;
+	
+	if (FMath::Abs(ProxyYaw) > TurnThreshold)
+	{
+		if (ProxyYaw > TurnThreshold)
+		{
+			TurningInPlace = ETurningInPlace::ETIP_Right;
+		}
+		else if (ProxyYaw < -TurnThreshold)
+		{
+			TurningInPlace = ETurningInPlace::ETIP_Left;
+		}
+		else
+		{
+			TurningInPlace = ETurningInPlace::ETIP_NotTurning;
+		}
+		return;
+	}
+	TurningInPlace = ETurningInPlace::ETIP_NotTurning;
+}
+
+float ABlasterCharacter::CalculateSpeed() const
+{
+	FVector Velocity = GetVelocity();
+	Velocity.Z = 0.f;
+	return Velocity.Size();
+}
+
 void ABlasterCharacter::TurnInPlace(float DeltaTime)
 {
-	if (AO_Yaw > 65.f)
+	if (AO_Yaw > 80.f)
 	{
 		TurningInPlace = ETurningInPlace::ETIP_Right;
 	}
-	else if (AO_Yaw < -65.f)
+	else if (AO_Yaw < -80.f)
 	{
 		TurningInPlace = ETurningInPlace::ETIP_Left;
 	}
@@ -171,29 +214,24 @@ void ABlasterCharacter::HideCharacterIfCameraClose() const
 	{
 		Combat->EquippedWeapon->GetWeaponMesh()->bOwnerNoSee = bCameraTooClose;
 	}
-	// if ((FollowCamera->GetComponentLocation() - GetActorLocation()).Size() < CameraThreshold)
-	// {
-	// 	GetMesh()->SetVisibility(false);
-	// 	if (Combat && Combat->EquippedWeapon && Combat->EquippedWeapon->GetWeaponMesh())
-	// 	{
-	// 		Combat->EquippedWeapon->GetWeaponMesh()->bOwnerNoSee = true;
-	// 	}
-	// }
-	// else
-	// {
-	// 	GetMesh()->SetVisibility(true);
-	// 	if (Combat && Combat->EquippedWeapon && Combat->EquippedWeapon->GetWeaponMesh())
-	// 	{
-	// 		Combat->EquippedWeapon->GetWeaponMesh()->bOwnerNoSee = false;
-	// 	}
-	// }
 }
 
 void ABlasterCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	AimOffset(DeltaTime);
+	if (GetLocalRole() > ROLE_SimulatedProxy && IsLocallyControlled())
+	{
+		AimOffset(DeltaTime);
+	}
+	else
+	{
+		TimeSinceLastMovementReplication += DeltaTime;
+		if (TimeSinceLastMovementReplication > 0.25f)
+		{
+			OnRep_ReplicatedMovement();
+		}
+	}
 
 	InterpCameraPosition(DeltaTime);
 	
@@ -233,7 +271,7 @@ void ABlasterCharacter::PostInitializeComponents()
 	}
 }
 
-void ABlasterCharacter::PlayFireMontage(bool bAiming)
+void ABlasterCharacter::PlayFireMontage(bool bAiming) const
 {
 	if (Combat == nullptr || Combat->EquippedWeapon == nullptr) return;
 
@@ -246,7 +284,7 @@ void ABlasterCharacter::PlayFireMontage(bool bAiming)
 	}
 }
 
-void ABlasterCharacter::PlayHitReactMontage()
+void ABlasterCharacter::PlayHitReactMontage() const
 {
 	if (Combat == nullptr || Combat->EquippedWeapon == nullptr) return;
 
@@ -257,6 +295,14 @@ void ABlasterCharacter::PlayHitReactMontage()
 		const FName SectionName = FName("FromFront");
 		AnimInstance->Montage_JumpToSection(SectionName);
 	}
+}
+
+void ABlasterCharacter::OnRep_ReplicatedMovement()
+{
+	Super::OnRep_ReplicatedMovement();
+
+	SimProxiesTurn();
+	TimeSinceLastMovementReplication = 0.f;
 }
 
 void ABlasterCharacter::EquipButtonPressed()
