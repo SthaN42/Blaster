@@ -99,21 +99,30 @@ void UCombatComponent::ServerSetAiming_Implementation(bool bIsAiming)
 	}
 }
 
-void UCombatComponent::FireButtonPressed(bool bPressed)
+void UCombatComponent::Fire()
 {
-	bFireButtonPressed = bPressed;
-
-	if (bFireButtonPressed)
+	if (bCanFire)
 	{
-		FHitResult HitResult;
-		TraceUnderCrosshairs(HitResult);
+		bCanFire = false;
 		
-		ServerFire(HitResult.ImpactPoint);
+		ServerFire(HitTarget);
 
 		if (EquippedWeapon)
 		{
 			CrosshairShootingFactor = FMath::Min(CrosshairShootingFactor + 0.35f, 1.f);
 		}
+
+		StartFireTimer();
+	}
+}
+
+void UCombatComponent::FireButtonPressed(bool bPressed)
+{
+	bFireButtonPressed = bPressed;
+
+	if (bFireButtonPressed)
+	{		
+		Fire();
 	}
 }
 
@@ -250,7 +259,7 @@ void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& T
 	}
 }
 
-void UCombatComponent::OnRep_EquippedWeapon()
+void UCombatComponent::OnRep_EquippedWeapon() const
 {
 	if (EquippedWeapon && Character)
 	{
@@ -275,5 +284,24 @@ void UCombatComponent::InterpFOV(float DeltaTime)
 	if (Character && Character->GetFollowCamera())
 	{
 		Character->GetFollowCamera()->SetFieldOfView(CurrentFOV);
+	}
+}
+
+void UCombatComponent::StartFireTimer()
+{
+	if (EquippedWeapon == nullptr || Character == nullptr) return;
+
+	Character->GetWorldTimerManager().SetTimer(FireTimer, this, &ThisClass::FireTimerFinished, EquippedWeapon->FireDelay);
+}
+
+void UCombatComponent::FireTimerFinished()
+{
+	if (EquippedWeapon == nullptr) return;
+	
+	bCanFire = true;
+	
+	if (bFireButtonPressed && EquippedWeapon->bAutomatic)
+	{
+		Fire();
 	}
 }

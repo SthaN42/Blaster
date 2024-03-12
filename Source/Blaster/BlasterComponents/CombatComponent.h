@@ -37,6 +37,7 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void ServerSetAiming(bool bIsAiming);
 
+	void Fire();
 	void FireButtonPressed(bool bPressed);
 
 	UFUNCTION(Server, Reliable)
@@ -60,7 +61,7 @@ private:
 	TObjectPtr<AWeapon> EquippedWeapon;
 
 	UFUNCTION()
-	void OnRep_EquippedWeapon();
+	void OnRep_EquippedWeapon() const;
 
 	UPROPERTY(Replicated)
 	bool bAiming;
@@ -97,4 +98,13 @@ private:
 	float ZoomInterpSpeed = 20.f;
 
 	void InterpFOV(float DeltaTime);
+
+	/* Automatic fire */
+	
+	FTimerHandle FireTimer;
+
+	bool bCanFire = true;
+
+	void StartFireTimer();
+	void FireTimerFinished();
 };
