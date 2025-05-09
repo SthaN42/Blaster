@@ -32,9 +32,12 @@ public:
 	virtual void PostInitializeComponents() override;
 
 	void PlayFireMontage(bool bAiming) const;
+	
+	void PlayElimMontage() const;
 
 	virtual void OnRep_ReplicatedMovement() override;
 
+	UFUNCTION(NetMulticast, Reliable)
 	void Elim();
 
 	void EquipButtonPressed();
@@ -71,6 +74,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE bool ShouldRotateRootBone() const { return bRotateRootBone; }
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE bool IsEliminated() const { return bEliminated; }
 
 protected:
 	virtual void BeginPlay() override;
@@ -134,6 +140,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	TObjectPtr<UAnimMontage> HitReactMontage;
 
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	TObjectPtr<UAnimMontage> ElimMontage;
+
 	/* Camera position */
 	
 	float DefaultCameraPosition_Z;
@@ -152,6 +161,8 @@ private:
 	float CameraThreshold = 200.f;
 
 	/* Player Health */
+
+	bool bEliminated = false;
 	
 	UPROPERTY(EditAnywhere, Category = "Player Stats")
 	float MaxHealth = 100.f;
