@@ -37,8 +37,10 @@ public:
 
 	virtual void OnRep_ReplicatedMovement() override;
 
-	UFUNCTION(NetMulticast, Reliable)
 	void Elim();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastElim();
 
 	void EquipButtonPressed();
 	void AimButtonPressed();
@@ -174,4 +176,11 @@ private:
 	void OnRep_Health();
 
 	class ABlasterPlayerController* BlasterPlayerController;
+
+	FTimerHandle ElimTimer;
+
+	UPROPERTY(EditDefaultsOnly)
+	float ElimDelay = 3.f;
+
+	void ElimTimerFinished();
 };

@@ -350,10 +350,25 @@ void ABlasterCharacter::OnRep_ReplicatedMovement()
 	TimeSinceLastMovementReplication = 0.f;
 }
 
-void ABlasterCharacter::Elim_Implementation()
+void ABlasterCharacter::Elim()
+{
+	MulticastElim();
+
+	GetWorldTimerManager().SetTimer(ElimTimer, this, &ThisClass::ElimTimerFinished, ElimDelay);
+}
+
+void ABlasterCharacter::MulticastElim_Implementation()
 {
 	bEliminated = true;
 	PlayElimMontage();
+}
+
+void ABlasterCharacter::ElimTimerFinished()
+{
+	if (ABlasterGameMode* BlasterGameMode = GetWorld()->GetAuthGameMode<ABlasterGameMode>())
+	{
+		BlasterGameMode->RequestRespawn(this, Controller);
+	}
 }
 
 void ABlasterCharacter::EquipButtonPressed()
