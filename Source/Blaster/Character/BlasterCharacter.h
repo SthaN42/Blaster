@@ -146,4 +146,15 @@ private:
 	/* Distance from the camera to the character where we'll start to hide the character for better visibility */
 	UPROPERTY(EditAnywhere, Category = "Camera")
 	float CameraThreshold = 200.f;
+
+	/* Player Health */
+	
+	UPROPERTY(EditAnywhere, Category = "Player Stats")
+	float MaxHealth = 100.f;
+
+	UPROPERTY(ReplicatedUsing = OnRep_Health, VisibleAnywhere, Category = "Player Stats")
+	float Health;
+
+	UFUNCTION()
+	void OnRep_Health();
 };
