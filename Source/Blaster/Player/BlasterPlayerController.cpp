@@ -7,11 +7,34 @@
 #include "Blaster/BlasterComponents/CombatComponent.h"
 #include "Blaster/Character/BlasterCharacter.h"
 #include "Blaster/Input/BlasterInputComponent.h"
+#include "Blaster/UI/BlasterHUD.h"
+#include "Blaster/UI/CharacterOverlay.h"
+#include "Components/ProgressBar.h"
+#include "Components/TextBlock.h"
 #include "GameFramework/Character.h"
 
 ABlasterCharacter* ABlasterPlayerController::GetBlasterCharacter() const
 {
 	return CastChecked<ABlasterCharacter>(GetCharacter());
+}
+
+void ABlasterPlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+
+	BlasterHUD = Cast<ABlasterHUD>(GetHUD());
+}
+
+void ABlasterPlayerController::SetHUDHealth(const float Health, const float MaxHealth)
+{
+	BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
+	if (BlasterHUD && BlasterHUD->CharacterOverlay && BlasterHUD->CharacterOverlay->HealthBar && BlasterHUD->CharacterOverlay->HealthText)
+	{
+		const float HealthPercentage = Health / MaxHealth;
+		BlasterHUD->CharacterOverlay->HealthBar->SetPercent(HealthPercentage);
+		const FString HealthString = FString::Printf(TEXT("%d/%d"), FMath::CeilToInt(Health), FMath::CeilToInt(MaxHealth));
+		BlasterHUD->CharacterOverlay->HealthText->SetText(FText::FromString(HealthString));
+	}
 }
 
 void ABlasterPlayerController::SetupInputComponent()

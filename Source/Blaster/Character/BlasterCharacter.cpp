@@ -9,6 +9,7 @@
 #include "Blaster/Blaster.h"
 #include "Blaster/BlasterComponents/CombatComponent.h"
 #include "Blaster/BlasterTypes/TurningInPlace.h"
+#include "Blaster/Player/BlasterPlayerController.h"
 #include "Blaster/Weapon/Weapon.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/WidgetComponent.h"
@@ -68,6 +69,12 @@ void ABlasterCharacter::BeginPlay()
 	{
 		DefaultCameraPosition_Z = CameraBoom->SocketOffset.Z;
 		CurrentCameraPosition_Z = DefaultCameraPosition_Z;
+	}
+
+	BlasterPlayerController = Cast<ABlasterPlayerController>(Controller);
+	if (BlasterPlayerController)
+	{
+		BlasterPlayerController->SetHUDHealth(Health, MaxHealth);
 	}
 }
 

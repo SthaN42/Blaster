@@ -8,6 +8,7 @@
 #include "BlasterPlayerController.generated.h"
 
 class ABlasterCharacter;
+class ABlasterHUD;
 struct FGameplayTag;
 struct FInputActionValue;
 class UBlasterInputConfig;
@@ -24,7 +25,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 	ABlasterCharacter* GetBlasterCharacter() const;
 
+	void SetHUDHealth(const float Health, const float MaxHealth);
+
 protected:
+	virtual void BeginPlay() override;
+	
 	virtual void SetupInputComponent() override;
 
 	void Input_Move(const FInputActionValue& InputActionValue);
@@ -44,4 +49,6 @@ protected:
 private:
 	UPROPERTY(EditDefaultsOnly, Category = Input)
 	TObjectPtr<UBlasterInputConfig> InputConfig;
+
+	ABlasterHUD* BlasterHUD;
 };
