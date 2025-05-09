@@ -35,6 +35,8 @@ public:
 
 	virtual void OnRep_ReplicatedMovement() override;
 
+	void Elim();
+
 	void EquipButtonPressed();
 	void AimButtonPressed();
 	void AimButtonReleased();
