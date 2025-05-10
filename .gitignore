@@ -83,6 +83,7 @@ DerivedDataCache/*
 
 # Rider files
 .idea
+*.DotSettings.user
 
 # Project specific files
 Plugins/*
