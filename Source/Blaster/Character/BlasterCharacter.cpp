@@ -17,6 +17,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
+#include "NiagaraComponent.h"
 
 ABlasterCharacter::ABlasterCharacter()
 {
@@ -53,6 +54,12 @@ ABlasterCharacter::ABlasterCharacter()
 	Combat->SetIsReplicated(true);
 
 	TurningInPlace = ETurningInPlace::ETIP_NotTurning;
+
+	DissolveTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("DissolveTimelineComponent"));
+	
+	DissolveParticlesSystem = CreateDefaultSubobject<UNiagaraComponent>(TEXT("DissolveParticlesComponent"));
+	DissolveParticlesSystem->SetupAttachment(GetMesh());
+	DissolveParticlesSystem->bAutoActivate = false;
 }
 
 FVector ABlasterCharacter::GetHitTarget() const
@@ -361,6 +368,14 @@ void ABlasterCharacter::MulticastElim_Implementation()
 {
 	bEliminated = true;
 	PlayElimMontage();
+
+	if (DissolveMaterialInstance)
+	{
+		DynamicDissolveMaterialInstance = UMaterialInstanceDynamic::Create(DissolveMaterialInstance, this);
+		GetMesh()->SetMaterial(0, DynamicDissolveMaterialInstance);
+		DynamicDissolveMaterialInstance->SetScalarParameterValue(TEXT("DissolveAmount"), 0.f);
+	}
+	StartDissolveEffect();
 }
 
 void ABlasterCharacter::ElimTimerFinished()
@@ -368,6 +383,22 @@ void ABlasterCharacter::ElimTimerFinished()
 	if (ABlasterGameMode* BlasterGameMode = GetWorld()->GetAuthGameMode<ABlasterGameMode>())
 	{
 		BlasterGameMode->RequestRespawn(this, Controller);
+	}
+}
+
+void ABlasterCharacter::UpdateDissolveEffect(float DissolveValue)
+{
+	DynamicDissolveMaterialInstance->SetScalarParameterValue(TEXT("DissolveAmount"), DissolveValue);
+}
+
+void ABlasterCharacter::StartDissolveEffect()
+{
+	DissolveTrack.BindDynamic(this, &ThisClass::UpdateDissolveEffect);
+	if (DissolveCurve && DissolveTimeline && DissolveParticlesSystem)
+	{
+		DissolveTimeline->AddInterpFloat(DissolveCurve, DissolveTrack);
+		DissolveTimeline->Play();
+		DissolveParticlesSystem->Activate(true);
 	}
 }
 

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Blaster/Interfaces/InteractWithCrosshairsInterface.h"
+#include "Components/TimelineComponent.h"
 #include "BlasterCharacter.generated.h"
 
 enum class ETurningInPlace : uint8;
@@ -14,6 +15,7 @@ class UWidgetComponent;
 class UInputMappingContext;
 class UCameraComponent;
 class USpringArmComponent;
+class UNiagaraComponent;
 
 UCLASS()
 class BLASTER_API ABlasterCharacter : public ACharacter, public IInteractWithCrosshairsInterface
@@ -183,4 +185,27 @@ private:
 	float ElimDelay = 3.f;
 
 	void ElimTimerFinished();
+
+	/* Elim Effect */
+
+	UPROPERTY(VisibleAnywhere, Category = "Elim Effect")
+	UTimelineComponent* DissolveTimeline;
+
+	FOnTimelineFloat DissolveTrack;
+
+	UPROPERTY(EditAnywhere, Category = "Elim Effect")
+	UCurveFloat* DissolveCurve;
+	
+	UPROPERTY(EditAnywhere, Category = "Elim Effect")
+	UMaterialInstance* DissolveMaterialInstance;
+	
+	UPROPERTY(VisibleAnywhere, Category = "Elim Effect", AdvancedDisplay)
+	UMaterialInstanceDynamic* DynamicDissolveMaterialInstance;
+
+	UPROPERTY(VisibleAnywhere, Category = "Elim Effect")
+	TObjectPtr<UNiagaraComponent> DissolveParticlesSystem;
+
+	UFUNCTION()
+	void UpdateDissolveEffect(float DissolveValue);
+	void StartDissolveEffect();
 };
