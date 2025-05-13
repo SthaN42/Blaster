@@ -82,6 +82,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE bool IsEliminated() const { return bEliminated; }
 
+	FORCEINLINE float GetHealth() const { return Health; }
+
+	FORCEINLINE float GetMaxHealth() const { return MaxHealth; }
+
 protected:
 	virtual void BeginPlay() override;
 

@@ -27,6 +27,8 @@ public:
 
 	void SetHUDHealth(const float Health, const float MaxHealth);
 
+	virtual void OnPossess(APawn* InPawn) override;
+
 protected:
 	virtual void BeginPlay() override;
 	
