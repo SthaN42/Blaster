@@ -37,6 +37,17 @@ void ABlasterPlayerController::SetHUDHealth(const float Health, const float MaxH
 	}
 }
 
+void ABlasterPlayerController::SetHUDScore(const float Score)
+{
+	//TODO: When a client gets a kill, the HUD is null (although we're on the server)
+	BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
+	if (BlasterHUD && BlasterHUD->CharacterOverlay && BlasterHUD->CharacterOverlay->ScoreText)
+	{
+		const FString ScoreString = FString::Printf(TEXT("Score: %d"), FMath::FloorToInt(Score));
+		BlasterHUD->CharacterOverlay->ScoreText->SetText(FText::FromString(ScoreString));
+	}
+}
+
 void ABlasterPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);

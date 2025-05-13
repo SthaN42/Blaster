@@ -26,6 +26,7 @@ public:
 	ABlasterCharacter* GetBlasterCharacter() const;
 
 	void SetHUDHealth(const float Health, const float MaxHealth);
+	void SetHUDScore(const float Score);
 
 	virtual void OnPossess(APawn* InPawn) override;
 

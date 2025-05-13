@@ -6,6 +6,8 @@
 #include "Blueprint/UserWidget.h"
 #include "CharacterOverlay.generated.h"
 
+class UProgressBar;
+class UTextBlock;
 /**
  * 
  */
@@ -16,8 +18,11 @@ class BLASTER_API UCharacterOverlay : public UUserWidget
 
 public:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget, BlueprintProtected = true))
-	class UProgressBar* HealthBar;
+	UProgressBar* HealthBar;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget, BlueprintProtected = true))
-	class UTextBlock* HealthText;
+	UTextBlock* HealthText;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget, BlueprintProtected = true))
+	UTextBlock* ScoreText;
 };

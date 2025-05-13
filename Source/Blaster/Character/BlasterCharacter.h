@@ -8,6 +8,7 @@
 #include "Components/TimelineComponent.h"
 #include "BlasterCharacter.generated.h"
 
+class ABlasterPlayerState;
 enum class ETurningInPlace : uint8;
 class UCombatComponent;
 class AWeapon;
@@ -51,6 +52,8 @@ public:
 
 	virtual void Jump() override;
 	void ToggleCrouch();
+
+	ABlasterPlayerState* BlasterPlayerState;
 
 	/* Getters / Setters */
 	
@@ -99,6 +102,9 @@ protected:
 	void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, class AController* InstigatorController, AActor* DamageCauser);
 
 	void UpdateHUDHealth();
+
+	// Poll for any relevant classes and initialize our HUD
+	void PollInit();
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
