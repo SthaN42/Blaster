@@ -188,6 +188,9 @@ private:
 
 	/* Elim Effect */
 
+	UPROPERTY(EditAnywhere, Category = "Elim Effect")
+	USoundBase* ElimSound;
+
 	UPROPERTY(VisibleAnywhere, Category = "Elim Effect")
 	UTimelineComponent* DissolveTimeline;
 

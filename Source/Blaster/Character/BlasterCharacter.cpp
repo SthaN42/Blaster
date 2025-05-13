@@ -18,6 +18,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
 #include "NiagaraComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 ABlasterCharacter::ABlasterCharacter()
 {
@@ -374,7 +375,7 @@ void ABlasterCharacter::MulticastElim_Implementation()
 	bEliminated = true;
 	PlayElimMontage();
 
-	// Start dissolve effect
+	// Start elim effect
 	if (DissolveMaterialInstance)
 	{
 		DynamicDissolveMaterialInstance = UMaterialInstanceDynamic::Create(DissolveMaterialInstance, this);
@@ -411,11 +412,12 @@ void ABlasterCharacter::UpdateDissolveEffect(float DissolveValue)
 void ABlasterCharacter::StartDissolveEffect()
 {
 	DissolveTrack.BindDynamic(this, &ThisClass::UpdateDissolveEffect);
-	if (DissolveCurve && DissolveTimeline && DissolveParticlesSystem)
+	if (DissolveCurve && DissolveTimeline && DissolveParticlesSystem && ElimSound)
 	{
 		DissolveTimeline->AddInterpFloat(DissolveCurve, DissolveTrack);
 		DissolveTimeline->Play();
 		DissolveParticlesSystem->Activate(true);
+		UGameplayStatics::PlaySoundAtLocation(this, ElimSound, GetActorLocation());
 	}
 }
 
