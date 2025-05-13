@@ -32,6 +32,8 @@ public:
 
 	void ShowPickupWidget(const bool bShowWidget) const;
 
+	void Dropped();
+
 	void SetWeaponState(const EWeaponState InState);
 	FORCEINLINE USphereComponent* GetAreaSphere() const { return AreaSphere; }
 
