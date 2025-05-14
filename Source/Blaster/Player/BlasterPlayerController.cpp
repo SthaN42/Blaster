@@ -4,7 +4,6 @@
 #include "BlasterPlayerController.h"
 
 #include "Blaster/BlasterGameplayTags.h"
-#include "Blaster/BlasterComponents/CombatComponent.h"
 #include "Blaster/Character/BlasterCharacter.h"
 #include "Blaster/Input/BlasterInputComponent.h"
 #include "Blaster/UI/BlasterHUD.h"
@@ -37,14 +36,23 @@ void ABlasterPlayerController::SetHUDHealth(const float Health, const float MaxH
 	}
 }
 
-void ABlasterPlayerController::SetHUDScore(const float Score)
+void ABlasterPlayerController::SetHUDScore(const int32 Score)
 {
-	//TODO: When a client gets a kill, the HUD is null (although we're on the server)
 	BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
 	if (BlasterHUD && BlasterHUD->CharacterOverlay && BlasterHUD->CharacterOverlay->ScoreText)
 	{
-		const FString ScoreString = FString::Printf(TEXT("Score: %d"), FMath::FloorToInt(Score));
+		const FString ScoreString = FString::Printf(TEXT("Score: %d"), Score);
 		BlasterHUD->CharacterOverlay->ScoreText->SetText(FText::FromString(ScoreString));
+	}
+}
+
+void ABlasterPlayerController::SetHUDDefeats(const int32 Defeats)
+{
+	BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
+	if (BlasterHUD && BlasterHUD->CharacterOverlay && BlasterHUD->CharacterOverlay->DefeatsText)
+	{
+		const FString DefeatsString = FString::Printf(TEXT("Defeats: %d"), Defeats);
+		BlasterHUD->CharacterOverlay->DefeatsText->SetText(FText::FromString(DefeatsString));
 	}
 }
 

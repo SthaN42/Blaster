@@ -25,4 +25,7 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget, BlueprintProtected = true))
 	UTextBlock* ScoreText;
+	
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget, BlueprintProtected = true))
+	UTextBlock* DefeatsText;
 };

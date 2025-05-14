@@ -361,6 +361,7 @@ void ABlasterCharacter::PollInit()
 		if (BlasterPlayerState)
 		{
 			BlasterPlayerState->AddToScore(0);
+			BlasterPlayerState->AddToDefeats(0);
 		}
 	}
 }

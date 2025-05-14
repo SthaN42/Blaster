@@ -8,6 +8,7 @@
 #include "Components/TimelineComponent.h"
 #include "BlasterCharacter.generated.h"
 
+class ABlasterPlayerController;
 class ABlasterPlayerState;
 enum class ETurningInPlace : uint8;
 class UCombatComponent;
@@ -53,6 +54,7 @@ public:
 	virtual void Jump() override;
 	void ToggleCrouch();
 
+	UPROPERTY()
 	ABlasterPlayerState* BlasterPlayerState;
 
 	/* Getters / Setters */
@@ -187,7 +189,8 @@ private:
 	UFUNCTION()
 	void OnRep_Health();
 
-	class ABlasterPlayerController* BlasterPlayerController;
+	UPROPERTY()
+	ABlasterPlayerController* BlasterPlayerController;
 
 	FTimerHandle ElimTimer;
 
