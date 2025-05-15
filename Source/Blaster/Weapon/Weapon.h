@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Weapon.generated.h"
 
+enum class EWeaponType : uint8;
 class ABlasterPlayerController;
 class ABlasterCharacter;
 class ACasing;
@@ -50,6 +51,8 @@ public:
 	FORCEINLINE float GetZoomInterpSpeed() const { return ZoomInterpSpeed; }
 
 	bool IsEmpty() const;
+
+	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
 
 	virtual void Fire(const FVector& HitTarget);
 
@@ -104,6 +107,9 @@ private:
 
 	UFUNCTION()
 	void OnRep_WeaponState();
+
+	UPROPERTY(EditAnywhere, Category = "WeaponProperties")
+	EWeaponType WeaponType;
 
 	UPROPERTY(EditAnywhere, ReplicatedUsing = OnRep_Ammo, Category = "WeaponProperties")
 	int32 Ammo;

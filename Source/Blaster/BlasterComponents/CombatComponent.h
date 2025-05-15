@@ -56,7 +56,7 @@ private:
 	TObjectPtr<ABlasterCharacter> Character;
 
 	UPROPERTY()
-	TObjectPtr<ABlasterPlayerController> Controller;
+	ABlasterPlayerController* Controller;
 
 	UPROPERTY()
 	TObjectPtr<ABlasterHUD> HUD;
@@ -121,4 +121,9 @@ private:
 	void OnRep_CarriedAmmo();
 	
 	TMap<EWeaponType, int32> CarriedAmmoMap;
+
+	UPROPERTY(EditAnywhere, Category = "Combat", meta=(ForceInlineRow))
+	TMap<EWeaponType, int32> StartingCarriedAmmoMap;
+
+	void InitializeCarriedAmmo();
 };
