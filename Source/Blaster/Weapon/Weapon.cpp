@@ -128,7 +128,7 @@ void AWeapon::OnRep_WeaponState()
 
 void AWeapon::SpendRound()
 {
-	--Ammo;
+	Ammo = FMath::Clamp(Ammo - 1, 0, MagCapacity);
 
 	SetHUDAmmo();
 }
@@ -136,6 +136,11 @@ void AWeapon::SpendRound()
 void AWeapon::OnRep_Ammo()
 {
 	SetHUDAmmo();
+}
+
+bool AWeapon::IsEmpty() const
+{
+	return Ammo <= 0;
 }
 
 void AWeapon::Fire(const FVector& HitTarget)

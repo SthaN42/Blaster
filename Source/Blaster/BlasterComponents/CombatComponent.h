@@ -105,8 +105,9 @@ private:
 	/* Automatic fire */
 	
 	FTimerHandle FireTimer;
-
 	bool bCanFire = true;
+
+	bool CanFire() const;
 
 	void StartFireTimer();
 	void FireTimerFinished();
