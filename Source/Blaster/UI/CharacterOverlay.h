@@ -31,4 +31,7 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget, BlueprintProtected = true))
 	UTextBlock* WeaponAmmoText;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget, BlueprintProtected = true))
+	UTextBlock* CarriedAmmoText;
 };

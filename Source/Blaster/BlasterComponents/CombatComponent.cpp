@@ -56,6 +56,7 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 
 	DOREPLIFETIME(UCombatComponent, EquippedWeapon);
 	DOREPLIFETIME(UCombatComponent, bAiming);
+	DOREPLIFETIME_CONDITION(UCombatComponent, CarriedAmmo, COND_OwnerOnly);
 }
 
 void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
@@ -324,4 +325,8 @@ void UCombatComponent::FireTimerFinished()
 	{
 		Fire();
 	}
+}
+
+void UCombatComponent::OnRep_CarriedAmmo()
+{
 }
