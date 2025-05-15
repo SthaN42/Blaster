@@ -391,6 +391,11 @@ void ABlasterCharacter::MulticastElim_Implementation()
 	bEliminated = true;
 	PlayElimMontage();
 
+	if (BlasterPlayerController)
+	{
+		BlasterPlayerController->SetHUDWeaponAmmo(0);
+	}
+
 	// Start elim effect
 	if (DissolveMaterialInstance)
 	{

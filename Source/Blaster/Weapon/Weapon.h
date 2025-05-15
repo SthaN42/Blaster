@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "Weapon.generated.h"
 
+class ABlasterPlayerController;
+class ABlasterCharacter;
 class ACasing;
 class UWidgetComponent;
 class USphereComponent;
@@ -29,6 +31,10 @@ public:
 	AWeapon();
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	virtual void OnRep_Owner() override;
+
+	void SetHUDAmmo();
 
 	void ShowPickupWidget(const bool bShowWidget) const;
 
@@ -86,12 +92,27 @@ protected:
 	UFUNCTION()
 	void OnSphereEnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
+	ABlasterCharacter* GetOwnerCharacter();
+
+	ABlasterPlayerController* GetOwnerController();
+
 private:
 	UPROPERTY(VisibleAnywhere, Category = "WeaponProperties", ReplicatedUsing = OnRep_WeaponState)
 	EWeaponState WeaponState;
 
 	UFUNCTION()
 	void OnRep_WeaponState();
+
+	UPROPERTY(EditAnywhere, ReplicatedUsing = OnRep_Ammo, Category = "WeaponProperties")
+	int32 Ammo;
+
+	UFUNCTION()
+	void OnRep_Ammo();
+
+	void SpendRound();
+
+	UPROPERTY(EditAnywhere, Category = "WeaponProperties")
+	int32 MagCapacity;
 	
 	UPROPERTY(VisibleAnywhere, Category = "WeaponProperties")
 	TObjectPtr<USkeletalMeshComponent> WeaponMesh;
@@ -110,4 +131,10 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "WeaponProperties")
 	FName CasingSpawnSocketName;
+
+	UPROPERTY()
+	TObjectPtr<ABlasterCharacter> BlasterOwnerCharacter;
+
+	UPROPERTY()
+	TObjectPtr<ABlasterPlayerController> BlasterOwnerController;
 };

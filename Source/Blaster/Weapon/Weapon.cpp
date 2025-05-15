@@ -6,6 +6,7 @@
 #include "Casing.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Blaster/Character/BlasterCharacter.h"
+#include "Blaster/Player/BlasterPlayerController.h"
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Net/UnrealNetwork.h"
@@ -37,6 +38,30 @@ void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AWeapon, WeaponState);
+	DOREPLIFETIME(AWeapon, Ammo);
+}
+
+void AWeapon::OnRep_Owner()
+{
+	Super::OnRep_Owner();
+
+	if (Owner == nullptr)
+	{
+		BlasterOwnerCharacter = nullptr;
+		BlasterOwnerController = nullptr;
+	}
+	else
+	{
+		SetHUDAmmo();
+	}
+}
+
+void AWeapon::SetHUDAmmo()
+{
+	if (GetOwnerController())
+	{
+		GetOwnerController()->SetHUDWeaponAmmo(Ammo);
+	}
 }
 
 void AWeapon::ShowPickupWidget(const bool bShowWidget) const
@@ -50,9 +75,12 @@ void AWeapon::ShowPickupWidget(const bool bShowWidget) const
 void AWeapon::Dropped()
 {
 	SetWeaponState(EWeaponState::EWS_Dropped);
-	FDetachmentTransformRules DetachRules(EDetachmentRule::KeepWorld,true);
+	const FDetachmentTransformRules DetachRules(EDetachmentRule::KeepWorld,true);
 	WeaponMesh->DetachFromComponent(DetachRules);
+	
 	SetOwner(nullptr);
+	BlasterOwnerCharacter = nullptr;
+	BlasterOwnerController = nullptr;
 }
 
 void AWeapon::SetWeaponState(const EWeaponState InState)
@@ -98,6 +126,18 @@ void AWeapon::OnRep_WeaponState()
 	}
 }
 
+void AWeapon::SpendRound()
+{
+	--Ammo;
+
+	SetHUDAmmo();
+}
+
+void AWeapon::OnRep_Ammo()
+{
+	SetHUDAmmo();
+}
+
 void AWeapon::Fire(const FVector& HitTarget)
 {
 	if (FireAnimation)
@@ -116,6 +156,7 @@ void AWeapon::Fire(const FVector& HitTarget)
 			}
 		}
 	}
+	SpendRound();
 }
 
 void AWeapon::BeginPlay()
@@ -151,3 +192,22 @@ void AWeapon::OnSphereEnOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 		BlasterCharacter->SetOverlappingWeapon(nullptr);
 	}
 }
+
+ABlasterCharacter* AWeapon::GetOwnerCharacter()
+{
+	if (BlasterOwnerCharacter == nullptr)
+	{
+		BlasterOwnerCharacter = Cast<ABlasterCharacter>(GetOwner());
+	}
+	return BlasterOwnerCharacter;
+}
+
+ABlasterPlayerController* AWeapon::GetOwnerController()
+{
+	if (BlasterOwnerController == nullptr)
+	{
+		BlasterOwnerController = Cast<ABlasterPlayerController>(GetOwnerCharacter()->Controller);
+	}
+	return BlasterOwnerController;
+}
+
