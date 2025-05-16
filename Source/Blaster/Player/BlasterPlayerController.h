@@ -43,6 +43,7 @@ protected:
 	void Input_Jump(const FInputActionValue& InputActionValue);
 	void Input_Crouch(const FInputActionValue& InputActionValue);
 	void Input_Equip(const FInputActionValue& InputActionValue);
+	void Input_Reload(const FInputActionValue& InputActionValue);
 	void Input_AimPressed(const FInputActionValue& InputActionValue);
 	void Input_AimReleased(const FInputActionValue& InputActionValue);
 	void Input_FirePressed(const FInputActionValue& InputActionValue);

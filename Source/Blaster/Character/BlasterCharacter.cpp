@@ -19,6 +19,7 @@
 #include "Net/UnrealNetwork.h"
 #include "NiagaraComponent.h"
 #include "Blaster/Player/BlasterPlayerState.h"
+#include "Blaster/Weapon/WeaponTypes.h"
 #include "Kismet/GameplayStatics.h"
 
 ABlasterCharacter::ABlasterCharacter()
@@ -305,6 +306,26 @@ void ABlasterCharacter::PlayFireMontage(bool bAiming) const
 	}
 }
 
+void ABlasterCharacter::PlayerReloadMontage() const
+{
+	if (Combat == nullptr || Combat->EquippedWeapon == nullptr) return;
+
+	if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance(); AnimInstance && ReloadMontage)
+	{
+		AnimInstance->Montage_Play(ReloadMontage);
+		FName SectionName;
+
+		switch (Combat->EquippedWeapon->GetWeaponType())
+		{
+		case EWeaponType::EWT_AssaultRifle:
+			SectionName = FName("Rifle");
+			break;
+		}
+		
+		AnimInstance->Montage_JumpToSection(SectionName);
+	}
+}
+
 void ABlasterCharacter::PlayElimMontage() const
 {
 	if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance(); AnimInstance && ElimMontage)
@@ -458,6 +479,22 @@ void ABlasterCharacter::EquipButtonPressed()
 	}
 }
 
+void ABlasterCharacter::ServerEquipButtonPressed_Implementation()
+{
+	if (Combat)
+	{
+		Combat->EquipWeapon(OverlappingWeapon);
+	}
+}
+
+void ABlasterCharacter::ReloadButtonPressed()
+{
+	if (Combat)
+	{
+		Combat->Reload();
+	}
+}
+
 void ABlasterCharacter::AimButtonPressed()
 {
 	if (Combat && Combat->EquippedWeapon)
@@ -474,7 +511,7 @@ void ABlasterCharacter::AimButtonReleased()
 	}
 }
 
-void ABlasterCharacter::FireButtonPressed(bool bPressed)
+void ABlasterCharacter::FireButtonPressed(const bool bPressed)
 {
 	if (Combat && Combat->EquippedWeapon)
 	{
@@ -493,14 +530,6 @@ void ABlasterCharacter::ToggleCrouch()
 	else if (MoveComp->IsMovingOnGround())
 	{
 		Crouch();
-	}
-}
-
-void ABlasterCharacter::ServerEquipButtonPressed_Implementation()
-{
-	if (Combat)
-	{
-		Combat->EquipWeapon(OverlappingWeapon);
 	}
 }
 

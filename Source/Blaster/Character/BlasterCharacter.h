@@ -36,7 +36,7 @@ public:
 	virtual void PostInitializeComponents() override;
 
 	void PlayFireMontage(bool bAiming) const;
-	
+	void PlayerReloadMontage() const;
 	void PlayElimMontage() const;
 
 	virtual void OnRep_ReplicatedMovement() override;
@@ -47,9 +47,10 @@ public:
 	void MulticastElim();
 
 	void EquipButtonPressed();
+	void ReloadButtonPressed();
 	void AimButtonPressed();
 	void AimButtonReleased();
-	void FireButtonPressed(bool bPressed);
+	void FireButtonPressed(const bool bPressed);
 
 	virtual void Jump() override;
 	void ToggleCrouch();
@@ -150,13 +151,18 @@ private:
 	ETurningInPlace TurningInPlace;
 	void TurnInPlace(float DeltaTime);
 
-	UPROPERTY(EditAnywhere, Category = "Combat")
+	// Montages
+
+	UPROPERTY(EditAnywhere, Category = "Combat|Animations")
 	TObjectPtr<UAnimMontage> FireWeaponMontage;
 
-	UPROPERTY(EditAnywhere, Category = "Combat")
+	UPROPERTY(EditAnywhere, Category = "Combat|Animations")
+	TObjectPtr<UAnimMontage> ReloadMontage;
+
+	UPROPERTY(EditAnywhere, Category = "Combat|Animations")
 	TObjectPtr<UAnimMontage> HitReactMontage;
 
-	UPROPERTY(EditAnywhere, Category = "Combat")
+	UPROPERTY(EditAnywhere, Category = "Combat|Animations")
 	TObjectPtr<UAnimMontage> ElimMontage;
 
 	/* Camera position */
