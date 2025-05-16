@@ -60,7 +60,9 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void ServerReload();
 	
-	void HandleReload();
+	void HandleReload() const;
+	
+	int32 GetAmountToReload();
 
 private:
 	UPROPERTY()
@@ -143,4 +145,6 @@ private:
 	TMap<EWeaponType, int32> StartingCarriedAmmoMap;
 
 	void InitializeCarriedAmmo();
+
+	void UpdateAmmoValues();
 };

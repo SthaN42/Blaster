@@ -39,7 +39,11 @@ public:
 
 	void ShowPickupWidget(const bool bShowWidget) const;
 
+	virtual void Fire(const FVector& HitTarget);
+
 	void Dropped();
+
+	void AddAmmo(const int32 AmmoToAdd);
 
 	void SetWeaponState(const EWeaponState InState);
 	FORCEINLINE USphereComponent* GetAreaSphere() const { return AreaSphere; }
@@ -50,11 +54,12 @@ public:
 	FORCEINLINE float GetZoomedFOV() const { return ZoomedFOV; }
 	FORCEINLINE float GetZoomInterpSpeed() const { return ZoomInterpSpeed; }
 
+	FORCEINLINE int32 GetAmmo() const { return Ammo; }
+	FORCEINLINE int32 GetMagCapacity() const { return MagCapacity; }
+
 	bool IsEmpty() const;
 
 	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
-
-	virtual void Fire(const FVector& HitTarget);
 
 	/* Weapon crosshair textures */
 	UPROPERTY(EditAnywhere, Category = "Crosshairs")
