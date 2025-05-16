@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Blaster/BlasterTypes/CombatState.h"
 #include "Blaster/UI/BlasterHUD.h"
 #include "Components/ActorComponent.h"
 #include "CombatComponent.generated.h"
@@ -33,6 +34,9 @@ public:
 	void EquipWeapon(AWeapon* WeaponToEquip);
 	
 	void Reload();
+
+	UFUNCTION(BlueprintCallable)
+	void FinishReload();
 	
 protected:
 	void SetAiming(bool bIsAiming);
@@ -55,6 +59,8 @@ protected:
 
 	UFUNCTION(Server, Reliable)
 	void ServerReload();
+	
+	void HandleReload();
 
 private:
 	UPROPERTY()
@@ -71,6 +77,12 @@ private:
 
 	UFUNCTION()
 	void OnRep_EquippedWeapon() const;
+
+	UPROPERTY(ReplicatedUsing = OnRep_CombatState)
+	ECombatState CombatState = ECombatState::ECS_Unoccupied;
+
+	UFUNCTION()
+	void OnRep_CombatState();
 
 	UPROPERTY(Replicated)
 	bool bAiming;

@@ -18,6 +18,7 @@ class UInputMappingContext;
 class UCameraComponent;
 class USpringArmComponent;
 class UNiagaraComponent;
+enum class ECombatState : uint8;
 
 UCLASS()
 class BLASTER_API ABlasterCharacter : public ACharacter, public IInteractWithCrosshairsInterface
@@ -92,6 +93,9 @@ public:
 
 	FORCEINLINE float GetMaxHealth() const { return MaxHealth; }
 
+	UFUNCTION(BlueprintCallable)
+	ECombatState GetCombatState() const;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -128,7 +132,7 @@ private:
 	UFUNCTION()
 	void OnRep_OverlappingWeapon(AWeapon* LastWeapon);
 
-	UPROPERTY(VisibleAnywhere, Category = "Combat")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = true))
 	TObjectPtr<UCombatComponent> Combat;
 
 	UFUNCTION(Server, Reliable)
