@@ -9,6 +9,7 @@
 #include "Blaster/Player/BlasterPlayerController.h"
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 
 AWeapon::AWeapon()
@@ -101,7 +102,12 @@ void AWeapon::SetWeaponState(const EWeaponState InState)
 		WeaponMesh->SetSimulatePhysics(false);
 		WeaponMesh->SetEnableGravity(false);
 		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		if (EquipSound)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, EquipSound, GetActorLocation());
+		}
 		break;
+		
 	case EWeaponState::EWS_Dropped:
 		if (HasAuthority())
 		{
@@ -110,6 +116,10 @@ void AWeapon::SetWeaponState(const EWeaponState InState)
 		WeaponMesh->SetSimulatePhysics(true);
 		WeaponMesh->SetEnableGravity(true);
 		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		if (DroppedSound)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, DroppedSound, GetActorLocation());
+		}
 		break;
 	}
 }
@@ -123,11 +133,20 @@ void AWeapon::OnRep_WeaponState()
 		WeaponMesh->SetSimulatePhysics(false);
 		WeaponMesh->SetEnableGravity(false);
 		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		if (EquipSound)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, EquipSound, GetActorLocation());
+		}
 		break;
+		
 	case EWeaponState::EWS_Dropped:
 		WeaponMesh->SetSimulatePhysics(true);
 		WeaponMesh->SetEnableGravity(true);
 		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		if (DroppedSound)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, DroppedSound, GetActorLocation());
+		}
 		break;
 	}
 }

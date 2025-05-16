@@ -93,6 +93,12 @@ public:
 	UPROPERTY(EditAnywhere, Category = "WeaponProperties")
 	bool bAutomatic = true;
 
+	UPROPERTY(EditAnywhere, Category = "Sounds")
+	TObjectPtr<USoundBase> EquipSound;
+
+	UPROPERTY(EditAnywhere, Category = "Sounds")
+	TObjectPtr<USoundBase> DroppedSound;
+
 protected:
 	virtual void BeginPlay() override;
 
