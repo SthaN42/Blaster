@@ -48,6 +48,7 @@ public:
 	void MulticastElim();
 
 	void EquipButtonPressed();
+	void DropButtonPressed();
 	void ReloadButtonPressed();
 	void AimButtonPressed();
 	void AimButtonReleased();
@@ -137,6 +138,9 @@ private:
 
 	UFUNCTION(Server, Reliable)
 	void ServerEquipButtonPressed();
+
+	UFUNCTION(Server, Reliable)
+	void ServerDropButtonPressed();
 
 	/* Animation */
 

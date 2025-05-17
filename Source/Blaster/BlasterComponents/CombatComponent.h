@@ -32,6 +32,8 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	void EquipWeapon(AWeapon* WeaponToEquip);
+
+	void DropWeapon();
 	
 	void Reload();
 
@@ -78,7 +80,7 @@ private:
 	TObjectPtr<AWeapon> EquippedWeapon;
 
 	UFUNCTION()
-	void OnRep_EquippedWeapon() const;
+	void OnRep_EquippedWeapon();
 
 	UPROPERTY(ReplicatedUsing = OnRep_CombatState)
 	ECombatState CombatState = ECombatState::ECS_Unoccupied;

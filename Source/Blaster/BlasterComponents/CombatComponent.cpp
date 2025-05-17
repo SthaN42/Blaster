@@ -104,7 +104,28 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 	Character->bUseControllerRotationYaw = true;
 }
 
-void UCombatComponent::OnRep_EquippedWeapon() const
+void UCombatComponent::DropWeapon()
+{
+	// if (Character == nullptr || EquippedWeapon == nullptr) return;
+	//
+	// EquippedWeapon->Dropped();
+	//
+	// CarriedAmmo = 0;
+	//
+	// Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
+	// if (Controller)
+	// {
+	// 	Controller->SetHUDWeaponAmmo(0);
+	// 	Controller->SetHUDCarriedAmmo(0);
+	// }
+	//
+	// EquippedWeapon = nullptr;
+	//
+	// Character->GetCharacterMovement()->bOrientRotationToMovement = true;
+	// Character->bUseControllerRotationYaw = false;
+}
+
+void UCombatComponent::OnRep_EquippedWeapon()
 {
 	if (EquippedWeapon && Character)
 	{
@@ -118,6 +139,16 @@ void UCombatComponent::OnRep_EquippedWeapon() const
 		Character->GetCharacterMovement()->bOrientRotationToMovement = false;
 		Character->bUseControllerRotationYaw = true;
 	}
+	// else
+	// {
+	// 	Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
+	// 	if (Controller)
+	// 	{
+	// 		Controller->SetHUDWeaponAmmo(0);
+	// 	}
+	// 	Character->GetCharacterMovement()->bOrientRotationToMovement = true;
+	// 	Character->bUseControllerRotationYaw = false;
+	// }
 }
 
 void UCombatComponent::Reload()

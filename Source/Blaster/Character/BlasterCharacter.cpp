@@ -494,6 +494,29 @@ void ABlasterCharacter::ServerEquipButtonPressed_Implementation()
 	}
 }
 
+void ABlasterCharacter::DropButtonPressed()
+{
+// 	if (HasAuthority())
+// 	{
+// 		if (Combat)
+// 		{
+// 			Combat->DropWeapon();
+// 		}
+// 	}
+// 	else
+// 	{
+// 		ServerDropButtonPressed();
+// 	}
+}
+
+void ABlasterCharacter::ServerDropButtonPressed_Implementation()
+{
+// 	if (Combat)
+// 	{
+// 		Combat->DropWeapon();
+// 	}
+}
+
 void ABlasterCharacter::ReloadButtonPressed()
 {
 	if (Combat)
