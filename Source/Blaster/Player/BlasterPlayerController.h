@@ -33,15 +33,37 @@ public:
 	void SetHUDMatchCountdown(const uint32 CountdownTime);
 
 	virtual void OnPossess(APawn* InPawn) override;
+	virtual void ReceivedPlayer() override; // sync with the server clock as soon as possible
 
-	//! TEMPORARY
 	virtual void Tick(float DeltaSeconds) override;
+
+	// Synced with server world clock
+	virtual float GetServerTime() const;
 
 protected:
 	virtual void BeginPlay() override;
 	
-	//! TEMPORARY
 	void SetHUDTime();
+
+	/* Sync time between client and sever */
+
+	// Requests the current sever time, passing in the client's time when the request was sent
+	UFUNCTION(Server, Reliable)
+	void ServerRequestServerTime(const float TimeOfClientRequest);
+
+	// Reports the current server time to the client in response to ServerRequestServerTime
+	UFUNCTION(Client, Reliable)
+	void ClientReportServerTime(const float TimeOfClientRequest, const float TimeServerReceivedClientRequest);
+	
+	UPROPERTY(editdefaultsonly, Category = "Time")
+	float TimeSyncFrequency = 5.f;
+
+	// Difference between client and server time
+	float ClientServerDelta = 0.f;
+
+	float TimeSyncRunningTime = 0.f;
+
+	void CheckTimeSync(const float DeltaTime);
 	
 	/* Begin Inputs */
 	virtual void SetupInputComponent() override;
