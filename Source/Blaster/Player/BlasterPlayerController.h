@@ -91,6 +91,8 @@ protected:
 	void Input_AbilityInputTagHeld(FGameplayTag InputTag);
 	/* End Inputs */
 
+	void HandleMatchHasStarted();
+
 private:
 	UPROPERTY(EditDefaultsOnly, Category = Input)
 	TObjectPtr<UBlasterInputConfig> InputConfig;
