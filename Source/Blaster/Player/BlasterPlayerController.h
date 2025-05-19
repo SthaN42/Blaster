@@ -30,12 +30,20 @@ public:
 	void SetHUDDefeats(const int32 Defeats);
 	void SetHUDWeaponAmmo(const int32 Ammo);
 	void SetHUDCarriedAmmo(const int32 Ammo);
+	void SetHUDMatchCountdown(const uint32 CountdownTime);
 
 	virtual void OnPossess(APawn* InPawn) override;
+
+	//! TEMPORARY
+	virtual void Tick(float DeltaSeconds) override;
 
 protected:
 	virtual void BeginPlay() override;
 	
+	//! TEMPORARY
+	void SetHUDTime();
+	
+	/* Begin Inputs */
 	virtual void SetupInputComponent() override;
 
 	void Input_Move(const FInputActionValue& InputActionValue);
@@ -53,10 +61,16 @@ protected:
 	void Input_AbilityInputTagPressed(FGameplayTag InputTag);
 	void Input_AbilityInputTagReleased(FGameplayTag InputTag);
 	void Input_AbilityInputTagHeld(FGameplayTag InputTag);
+	/* End Inputs */
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = Input)
 	TObjectPtr<UBlasterInputConfig> InputConfig;
 
+	UPROPERTY()
 	ABlasterHUD* BlasterHUD;
+
+	//! TEMPORARY
+	float MatchTime = 120.f;
+	uint32 CountdownInt = 0;
 };
