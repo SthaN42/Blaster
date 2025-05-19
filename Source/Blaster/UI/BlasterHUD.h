@@ -48,14 +48,14 @@ public:
 	UPROPERTY(editanywhere, Category = "Player Stats")
 	TSubclassOf<class UUserWidget> CharacterOverlayClass;
 
+	void AddCharacterOverlay();
+
 	UPROPERTY()
 	class UCharacterOverlay* CharacterOverlay;
 
 protected:
 
 	virtual void BeginPlay() override;
-
-	void AddCharacterOverlay();
 	
 private:
 	void DrawCrosshair(UTexture2D* Texture, const FVector2D& ViewportCenter, const FVector2D& Spread, const FLinearColor& Color);

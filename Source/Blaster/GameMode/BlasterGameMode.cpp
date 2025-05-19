@@ -14,6 +14,13 @@ ABlasterGameMode::ABlasterGameMode()
 	bDelayedStart = true;
 }
 
+void ABlasterGameMode::BeginPlay()
+{
+	Super::BeginPlay();
+
+	LevelStartingTime = GetWorld()->GetTimeSeconds();
+}
+
 void ABlasterGameMode::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
@@ -28,12 +35,17 @@ void ABlasterGameMode::Tick(float DeltaSeconds)
 	}
 }
 
-
-void ABlasterGameMode::BeginPlay()
+void ABlasterGameMode::OnMatchStateSet()
 {
-	Super::BeginPlay();
+	Super::OnMatchStateSet();
 
-	LevelStartingTime = GetWorld()->GetTimeSeconds();
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		if (ABlasterPlayerController* BlasterPC = Cast<ABlasterPlayerController>(*It))
+		{
+			BlasterPC->OnMatchStateSet(MatchState);
+		}
+	}
 }
 
 void ABlasterGameMode::PlayerEliminated(ABlasterCharacter* EliminatedCharacter,
