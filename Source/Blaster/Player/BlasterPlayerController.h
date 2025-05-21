@@ -31,6 +31,7 @@ public:
 	void SetHUDDefeats(const int32 Defeats);
 	void SetHUDWeaponAmmo(const int32 Ammo);
 	void SetHUDCarriedAmmo(const int32 Ammo);
+	void SetHUDAnnouncementCountdown(const uint32 CountdownTime);
 	void SetHUDMatchCountdown(const uint32 CountdownTime);
 
 	virtual void OnPossess(APawn* InPawn) override;
@@ -91,7 +92,14 @@ protected:
 	void Input_AbilityInputTagHeld(FGameplayTag InputTag);
 	/* End Inputs */
 
+	void HandleMatchIsWaitingToStart();
 	void HandleMatchHasStarted();
+
+	UFUNCTION(Server, Reliable)
+	void ServerCheckMatchState();
+
+	UFUNCTION(Client, Reliable)
+	void ClientJoinMidGame(const FName StateOfMatch, const float StartingTime, const float Warmup, const float Match);
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = Input)
@@ -100,8 +108,9 @@ private:
 	UPROPERTY()
 	ABlasterHUD* BlasterHUD;
 
-	//! TEMPORARY
-	float MatchTime = 120.f;
+	float LevelStartingTime = 0.f;
+	float WarmupTime = 0.f;
+	float MatchTime = 0.f;
 	uint32 CountdownInt = 0;
 
 	UPROPERTY(ReplicatedUsing = OnRep_MatchState)

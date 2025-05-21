@@ -54,6 +54,8 @@ void ABlasterHUD::BeginPlay()
 
 void ABlasterHUD::AddCharacterOverlay()
 {
+	if (CharacterOverlay != nullptr) return;
+	
 	APlayerController* PlayerController = GetOwningPlayerController();
 	if (PlayerController && CharacterOverlayClass)
 	{
@@ -64,6 +66,8 @@ void ABlasterHUD::AddCharacterOverlay()
 
 void ABlasterHUD::AddAnnouncement()
 {
+	if (Announcement != nullptr) return;
+	
 	APlayerController* PlayerController = GetOwningPlayerController();
 	if (PlayerController && AnnouncementClass)
 	{
