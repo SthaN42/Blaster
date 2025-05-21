@@ -407,6 +407,7 @@ void ABlasterCharacter::Elim()
 	if (Combat && Combat->EquippedWeapon)
 	{
 		Combat->EquippedWeapon->Dropped();
+		Combat->EquippedWeapon = nullptr;
 	}
 	
 	MulticastElim();
