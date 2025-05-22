@@ -42,6 +42,8 @@ public:
 
 	float LevelStartingTime = 0.f;
 
+	FORCEINLINE float GetCountdownTime() const { return CountdownTime; }
+
 protected:
 	virtual void BeginPlay() override;
 
