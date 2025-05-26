@@ -46,6 +46,9 @@ public:
 	
 	void OnMatchStateSet(FName State);
 
+	UPROPERTY(Replicated)
+	bool bDisableGameplay = false;
+
 protected:
 	virtual void BeginPlay() override;
 	

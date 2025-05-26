@@ -79,6 +79,13 @@ ECombatState ABlasterCharacter::GetCombatState() const
 	return Combat->CombatState;
 }
 
+bool ABlasterCharacter::GetDisableGameplay() const
+{
+	if (BlasterPlayerController == nullptr) return true;
+
+	return BlasterPlayerController->bDisableGameplay;
+}
+
 void ABlasterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -94,6 +101,16 @@ void ABlasterCharacter::BeginPlay()
 	if (HasAuthority())
 	{
 		OnTakeAnyDamage.AddDynamic(this, &ThisClass::ReceiveDamage);
+	}
+}
+
+void ABlasterCharacter::Destroyed()
+{
+	Super::Destroyed();
+
+	if (Combat && Combat->EquippedWeapon)
+	{
+		Combat->EquippedWeapon->Destroy();
 	}
 }
 
@@ -243,28 +260,40 @@ void ABlasterCharacter::OnRep_Health()
 	PlayHitReactMontage();
 }
 
-void ABlasterCharacter::Tick(float DeltaTime)
+void ABlasterCharacter::Tick(float DeltaSeconds)
 {
-	Super::Tick(DeltaTime);
+	Super::Tick(DeltaSeconds);
 
 	PollInit();
 	
+	RotateInPlace(DeltaSeconds);
+
+	InterpCameraPosition(DeltaSeconds);
+	
+	HideCharacterIfCameraClose();
+}
+
+void ABlasterCharacter::RotateInPlace(float DeltaSeconds)
+{
+	if (GetBlasterPlayerController() && GetBlasterPlayerController()->bDisableGameplay)
+	{
+		bUseControllerRotationYaw = false;
+		TurningInPlace = ETurningInPlace::ETIP_NotTurning;
+		return;
+	}
+	
 	if (GetLocalRole() > ROLE_SimulatedProxy && IsLocallyControlled())
 	{
-		AimOffset(DeltaTime);
+		AimOffset(DeltaSeconds);
 	}
 	else
 	{
-		TimeSinceLastMovementReplication += DeltaTime;
+		TimeSinceLastMovementReplication += DeltaSeconds;
 		if (TimeSinceLastMovementReplication > 0.25f)
 		{
 			OnRep_ReplicatedMovement();
 		}
 	}
-
-	InterpCameraPosition(DeltaTime);
-	
-	HideCharacterIfCameraClose();
 }
 
 void ABlasterCharacter::PawnClientRestart()
@@ -365,19 +394,17 @@ void ABlasterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const 
 	{
 		if (ABlasterGameMode* BlasterGameMode = GetWorld()->GetAuthGameMode<ABlasterGameMode>())
 		{
-			BlasterPlayerController = BlasterPlayerController == nullptr ? Cast<ABlasterPlayerController>(Controller) : BlasterPlayerController;
 			ABlasterPlayerController* AttackerController = Cast<ABlasterPlayerController>(InstigatorController);
-			BlasterGameMode->PlayerEliminated(this, BlasterPlayerController, AttackerController);
+			BlasterGameMode->PlayerEliminated(this, GetBlasterPlayerController(), AttackerController);
 		}
 	}
 }
 
 void ABlasterCharacter::UpdateHUDHealth()
 {
-	BlasterPlayerController = BlasterPlayerController == nullptr ? Cast<ABlasterPlayerController>(Controller) : BlasterPlayerController;
-	if (BlasterPlayerController)
+	if (GetBlasterPlayerController())
 	{
-		BlasterPlayerController->SetHUDHealth(Health, MaxHealth);
+		GetBlasterPlayerController()->SetHUDHealth(Health, MaxHealth);
 	}
 }
 
@@ -420,10 +447,10 @@ void ABlasterCharacter::MulticastElim_Implementation()
 	bEliminated = true;
 	PlayElimMontage();
 
-	if (BlasterPlayerController)
+	if (GetBlasterPlayerController())
 	{
-		BlasterPlayerController->SetHUDWeaponAmmo(0);
-		BlasterPlayerController->SetHUDCarriedAmmo(0);
+		GetBlasterPlayerController()->SetHUDWeaponAmmo(0);
+		GetBlasterPlayerController()->SetHUDCarriedAmmo(0);
 	}
 
 	// Start elim effect
@@ -438,9 +465,9 @@ void ABlasterCharacter::MulticastElim_Implementation()
 	// Disable character movement
 	GetCharacterMovement()->DisableMovement();
 	GetCharacterMovement()->StopMovementImmediately();
-	if (BlasterPlayerController)
+	if (GetBlasterPlayerController())
 	{
-		DisableInput(BlasterPlayerController);
+		GetBlasterPlayerController()->bDisableGameplay = true;
 	}
 	// Disable collision
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -562,6 +589,15 @@ void ABlasterCharacter::ToggleCrouch()
 	{
 		Crouch();
 	}
+}
+
+ABlasterPlayerController* ABlasterCharacter::GetBlasterPlayerController()
+{
+	if (BlasterPlayerController == nullptr)
+	{
+		BlasterPlayerController = Cast<ABlasterPlayerController>(GetController());
+	}
+	return BlasterPlayerController;
 }
 
 void ABlasterCharacter::SetOverlappingWeapon(AWeapon* InWeapon)

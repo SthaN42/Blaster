@@ -4,6 +4,7 @@
 #include "BlasterPlayerController.h"
 
 #include "Blaster/BlasterGameplayTags.h"
+#include "Blaster/BlasterComponents/CombatComponent.h"
 #include "Blaster/Character/BlasterCharacter.h"
 #include "Blaster/GameMode/BlasterGameMode.h"
 #include "Blaster/Input/BlasterInputComponent.h"
@@ -36,6 +37,7 @@ void ABlasterPlayerController::GetLifetimeReplicatedProps(TArray<class FLifetime
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(ABlasterPlayerController, MatchState);
+	DOREPLIFETIME(ABlasterPlayerController, bDisableGameplay);
 }
 
 void ABlasterPlayerController::Tick(float DeltaSeconds)
@@ -264,7 +266,7 @@ void ABlasterPlayerController::SetupInputComponent()
 
 void ABlasterPlayerController::Input_Move(const FInputActionValue& InputActionValue)
 {
-	if (!GetPawn()) return;
+	if (!GetPawn() || bDisableGameplay) return;
 	
 	const FVector2D Value = InputActionValue.Get<FVector2D>();
 	const FRotator MovementRotation(0.f, GetControlRotation().Yaw, 0.f);
@@ -300,63 +302,63 @@ void ABlasterPlayerController::Input_Look(const FInputActionValue& InputActionVa
 
 void ABlasterPlayerController::Input_Jump(const FInputActionValue& InputActionValue)
 {
-	if (!GetBlasterCharacter()) return;
+	if (!GetBlasterCharacter() || bDisableGameplay) return;
 
 	GetBlasterCharacter()->Jump();
 }
 
 void ABlasterPlayerController::Input_Crouch(const FInputActionValue& InputActionValue)
 {
-	if (!GetBlasterCharacter()) return;
+	if (!GetBlasterCharacter() || bDisableGameplay) return;
 
 	GetBlasterCharacter()->ToggleCrouch();
 }
 
 void ABlasterPlayerController::Input_Equip(const FInputActionValue& InputActionValue)
 {
-	if (!GetBlasterCharacter()) return;
+	if (!GetBlasterCharacter() || bDisableGameplay) return;
 
 	GetBlasterCharacter()->EquipButtonPressed();
 }
 
 void ABlasterPlayerController::Input_Drop(const FInputActionValue& InputActionValue)
 {
-	if (!GetBlasterCharacter()) return;
+	if (!GetBlasterCharacter() || bDisableGameplay) return;
 
 	GetBlasterCharacter()->DropButtonPressed();
 }
 
 void ABlasterPlayerController::Input_Reload(const FInputActionValue& InputActionValue)
 {
-	if (!GetBlasterCharacter()) return;
+	if (!GetBlasterCharacter() || bDisableGameplay) return;
 
 	GetBlasterCharacter()->ReloadButtonPressed();
 }
 
 void ABlasterPlayerController::Input_AimPressed(const FInputActionValue& InputActionValue)
 {
-	if (!GetBlasterCharacter()) return;
+	if (!GetBlasterCharacter() || bDisableGameplay) return;
 
 	GetBlasterCharacter()->AimButtonPressed();
 }
 
 void ABlasterPlayerController::Input_AimReleased(const FInputActionValue& InputActionValue)
 {
-	if (!GetBlasterCharacter()) return;
+	if (!GetBlasterCharacter() || bDisableGameplay) return;
 	
 	GetBlasterCharacter()->AimButtonReleased();
 }
 
 void ABlasterPlayerController::Input_FirePressed(const FInputActionValue& InputActionValue)
 {
-	if (!GetBlasterCharacter()) return;
+	if (!GetBlasterCharacter() || bDisableGameplay) return;
 
 	GetBlasterCharacter()->FireButtonPressed(true);
 }
 
 void ABlasterPlayerController::Input_FireReleased(const FInputActionValue& InputActionValue)
 {
-	if (!GetBlasterCharacter()) return;
+	if (!GetBlasterCharacter() || bDisableGameplay) return;
 
 	GetBlasterCharacter()->FireButtonPressed(false);
 }
@@ -435,6 +437,12 @@ void ABlasterPlayerController::HandleMatchHasStarted()
 
 void ABlasterPlayerController::HandleCooldown()
 {
+	bDisableGameplay = true;
+	if (GetBlasterCharacter() && GetBlasterCharacter()->GetCombat())
+	{
+		GetBlasterCharacter()->GetCombat()->FireButtonPressed(false);
+	}
+	
 	BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
 	if (BlasterHUD)
 	{

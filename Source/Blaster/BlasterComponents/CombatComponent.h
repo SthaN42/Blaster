@@ -40,13 +40,14 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void FinishReload();
 	
+	void FireButtonPressed(const bool bPressed);
+	
 protected:
 	void SetAiming(bool bIsAiming);
 
 	UFUNCTION(Server, Reliable)
 	void ServerSetAiming(bool bIsAiming);
 
-	void FireButtonPressed(const bool bPressed);
 	void Fire();
 
 	UFUNCTION(Server, Reliable)

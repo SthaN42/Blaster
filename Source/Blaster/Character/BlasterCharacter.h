@@ -28,7 +28,9 @@ class BLASTER_API ABlasterCharacter : public ACharacter, public IInteractWithCro
 public:
 	ABlasterCharacter();
 	
-	virtual void Tick(float DeltaTime) override;
+	virtual void Tick(float DeltaSeconds) override;
+
+	virtual void Destroyed() override;
 
 	virtual void PawnClientRestart() override;
 
@@ -61,7 +63,10 @@ public:
 	ABlasterPlayerState* BlasterPlayerState;
 
 	/* Getters / Setters */
-	
+
+	UFUNCTION(BlueprintCallable)
+	ABlasterPlayerController* GetBlasterPlayerController();
+
 	void SetOverlappingWeapon(AWeapon* InWeapon);
 
 	UFUNCTION(BlueprintCallable)
@@ -97,6 +102,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 	ECombatState GetCombatState() const;
 
+	FORCEINLINE UCombatComponent* GetCombat() const { return Combat; }
+
+	UFUNCTION(BlueprintCallable)
+	bool GetDisableGameplay() const;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -113,6 +123,8 @@ protected:
 
 	// Poll for any relevant classes and initialize our HUD
 	void PollInit();
+
+	void RotateInPlace(float DeltaSeconds);
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
