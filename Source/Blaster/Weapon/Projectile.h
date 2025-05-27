@@ -28,25 +28,25 @@ protected:
 	virtual void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 	/** The default amount of damage dealt */
-	UPROPERTY(EditDefaultsOnly, Category = "Damage")
+	UPROPERTY(EditDefaultsOnly, Category = "Projectile|Damage")
 	float BaseDamage = 20.f;
 
-private:
+	UPROPERTY(EditAnywhere, Category = "Projectile|Effects")
+	TObjectPtr<UParticleSystem> ImpactParticles;
+
+	UPROPERTY(EditAnywhere, Category = "Projectile|Sounds")
+	TObjectPtr<USoundCue> ImpactSound;
+
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UBoxComponent> CollisionBox;
 
+private:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UProjectileMovementComponent> ProjectileMovementComponent;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Projectile|Effects")
 	TObjectPtr<UParticleSystem> Tracer;
 
 	UPROPERTY()
 	TObjectPtr<UParticleSystemComponent> TracerComponent;
-
-	UPROPERTY(EditAnywhere)
-	TObjectPtr<UParticleSystem> ImpactParticles;
-
-	UPROPERTY(EditAnywhere)
-	TObjectPtr<USoundCue> ImpactSound;
 };
