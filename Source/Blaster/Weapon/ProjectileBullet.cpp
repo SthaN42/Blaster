@@ -13,7 +13,7 @@ void AProjectileBullet::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherAc
 	{
 		if (AController* OwnerController = OwnerCharacter->GetController())
 		{
-			UGameplayStatics::ApplyDamage(OtherActor, Damage, OwnerController, this, UDamageType::StaticClass());
+			UGameplayStatics::ApplyDamage(OtherActor, BaseDamage, OwnerController, this, UDamageType::StaticClass());
 		}
 	}
 	

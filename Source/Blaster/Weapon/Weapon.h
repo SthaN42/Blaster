@@ -3,10 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "WeaponTypes.h"
 #include "GameFramework/Actor.h"
 #include "Weapon.generated.h"
 
-enum class EWeaponType : uint8;
 class ABlasterPlayerController;
 class ABlasterCharacter;
 class ACasing;
@@ -45,6 +45,8 @@ public:
 
 	void AddAmmo(const int32 AmmoToAdd);
 
+	/* Getters / Setters */
+
 	void SetWeaponState(const EWeaponState InState);
 	FORCEINLINE USphereComponent* GetAreaSphere() const { return AreaSphere; }
 
@@ -62,27 +64,28 @@ public:
 	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
 
 	/* Weapon crosshair textures */
-	UPROPERTY(EditAnywhere, Category = "Crosshairs")
+	
+	UPROPERTY(EditAnywhere, Category = "WeaponProperties|Crosshairs")
 	TObjectPtr<UTexture2D> CrosshairCenter;
 
-	UPROPERTY(EditAnywhere, Category = "Crosshairs")
+	UPROPERTY(EditAnywhere, Category = "WeaponProperties|Crosshairs")
 	TObjectPtr<UTexture2D> CrosshairLeft;
 
-	UPROPERTY(EditAnywhere, Category = "Crosshairs")
+	UPROPERTY(EditAnywhere, Category = "WeaponProperties|Crosshairs")
 	TObjectPtr<UTexture2D> CrosshairRight;
 
-	UPROPERTY(EditAnywhere, Category = "Crosshairs")
+	UPROPERTY(EditAnywhere, Category = "WeaponProperties|Crosshairs")
 	TObjectPtr<UTexture2D> CrosshairTop;
 
-	UPROPERTY(EditAnywhere, Category = "Crosshairs")
+	UPROPERTY(EditAnywhere, Category = "WeaponProperties|Crosshairs")
 	TObjectPtr<UTexture2D> CrosshairBottom;
 
 	/* Zoomed FOV while aiming */
 
-	UPROPERTY(EditAnywhere, Category = "Zoom")
+	UPROPERTY(EditAnywhere, Category = "WeaponProperties|Zoom")
 	float ZoomedFOV = 30.f;
 
-	UPROPERTY(EditAnywhere, Category = "Zoom")
+	UPROPERTY(EditAnywhere, Category = "WeaponProperties|Zoom")
 	float ZoomInterpSpeed = 20.f;
 
 	/* Automatic fire */
@@ -93,10 +96,10 @@ public:
 	UPROPERTY(EditAnywhere, Category = "WeaponProperties")
 	bool bAutomatic = true;
 
-	UPROPERTY(EditAnywhere, Category = "Sounds")
+	UPROPERTY(EditAnywhere, Category = "WeaponProperties|Sounds")
 	TObjectPtr<USoundBase> EquipSound;
 
-	UPROPERTY(EditAnywhere, Category = "Sounds")
+	UPROPERTY(EditAnywhere, Category = "WeaponProperties|Sounds")
 	TObjectPtr<USoundBase> DroppedSound;
 
 protected:
@@ -113,7 +116,7 @@ protected:
 	ABlasterPlayerController* GetOwnerController();
 
 private:
-	UPROPERTY(VisibleAnywhere, Category = "WeaponProperties", ReplicatedUsing = OnRep_WeaponState)
+	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_WeaponState, Category = "WeaponProperties", AdvancedDisplay)
 	EWeaponState WeaponState;
 
 	UFUNCTION()

@@ -19,9 +19,10 @@ public:
 	virtual void Fire(const FVector& HitTarget) override;
 
 private:
-	UPROPERTY(EditAnywhere, Category = "ProjectileWeapon")
+	UPROPERTY(EditAnywhere, Category = "WeaponProperties|Projectile")
 	TSubclassOf<AProjectile> ProjectileClass;
 
-	UPROPERTY(EditDefaultsOnly, Category = "ProjectileWeapon")
+	/** The name of the socket on the weapon skeletal mesh from where the projectile should be spawned from */
+	UPROPERTY(EditDefaultsOnly, Category = "WeaponProperties|Projectile")
 	FName ProjectileSpawnSocketName;
 };

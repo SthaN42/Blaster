@@ -5,12 +5,12 @@
 #include "CoreMinimal.h"
 #include "Blaster/BlasterTypes/CombatState.h"
 #include "Blaster/UI/BlasterHUD.h"
+#include "Blaster/Weapon/WeaponTypes.h"
 #include "Components/ActorComponent.h"
 #include "CombatComponent.generated.h"
 
 #define TRACE_LENGTH 100000.f;
 
-enum class EWeaponType : uint8;
 class ABlasterHUD;
 class ABlasterPlayerController;
 class AWeapon;

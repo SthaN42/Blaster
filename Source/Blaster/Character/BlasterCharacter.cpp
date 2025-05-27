@@ -466,6 +466,7 @@ void ABlasterCharacter::MulticastElim_Implementation()
 	StartDissolveEffect();
 
 	// Disable character movement
+	GetCharacterMovement()->DisableMovement();
 	if (GetBlasterPlayerController())
 	{
 		GetBlasterPlayerController()->bDisableGameplay = true;
