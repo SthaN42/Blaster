@@ -4,7 +4,6 @@
 #include "Projectile.h"
 
 #include "Blaster/Blaster.h"
-#include "Blaster/Character/BlasterCharacter.h"
 #include "Components/BoxComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -23,9 +22,6 @@ AProjectile::AProjectile()
 	CollisionBox->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 	CollisionBox->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
 	CollisionBox->SetCollisionResponseToChannel(ECC_SkeletalMesh, ECR_Block);
-
-	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>("ProjectileMovement");
-	ProjectileMovementComponent->bRotationFollowsVelocity = true;
 }
 
 void AProjectile::BeginPlay()
@@ -46,6 +42,7 @@ void AProjectile::BeginPlay()
 	if (HasAuthority())
 	{
 		CollisionBox->OnComponentHit.AddDynamic(this, &ThisClass::OnHit);
+		CollisionBox->IgnoreActorWhenMoving(Owner, true);
 	}
 }
 

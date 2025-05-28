@@ -39,7 +39,7 @@ public:
 	virtual void PostInitializeComponents() override;
 
 	void PlayFireMontage(bool bAiming) const;
-	void PlayerReloadMontage() const;
+	void PlayReloadMontage() const;
 	void PlayElimMontage() const;
 
 	virtual void OnRep_ReplicatedMovement() override;

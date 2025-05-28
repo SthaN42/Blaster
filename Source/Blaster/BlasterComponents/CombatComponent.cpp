@@ -173,7 +173,7 @@ void UCombatComponent::ServerReload_Implementation()
 
 void UCombatComponent::HandleReload() const
 {
-	Character->PlayerReloadMontage();
+	Character->PlayReloadMontage();
 }
 
 int32 UCombatComponent::GetAmountToReload()

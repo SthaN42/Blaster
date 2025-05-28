@@ -97,11 +97,16 @@ void AWeapon::SetWeaponState(const EWeaponState InState)
 	switch (WeaponState)
 	{
 	case EWeaponState::EWS_Equipped:
+		SetReplicateMovement(false);
+		
 		ShowPickupWidget(false);
+		
 		AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		
 		WeaponMesh->SetSimulatePhysics(false);
 		WeaponMesh->SetEnableGravity(false);
 		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		
 		if (EquipSound)
 		{
 			UGameplayStatics::PlaySoundAtLocation(this, EquipSound, GetActorLocation());
@@ -109,17 +114,24 @@ void AWeapon::SetWeaponState(const EWeaponState InState)
 		break;
 		
 	case EWeaponState::EWS_Dropped:
+		SetReplicateMovement(true);
+		
 		if (HasAuthority())
 		{
 			AreaSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 		}
+		
 		WeaponMesh->SetSimulatePhysics(true);
 		WeaponMesh->SetEnableGravity(true);
 		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		
 		if (DroppedSound)
 		{
 			UGameplayStatics::PlaySoundAtLocation(this, DroppedSound, GetActorLocation());
 		}
+		break;
+
+	default:
 		break;
 	}
 }
@@ -129,10 +141,14 @@ void AWeapon::OnRep_WeaponState()
 	switch (WeaponState)
 	{
 	case EWeaponState::EWS_Equipped:
+		SetReplicateMovement(false);
+		
 		ShowPickupWidget(false);
+
 		WeaponMesh->SetSimulatePhysics(false);
 		WeaponMesh->SetEnableGravity(false);
 		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 		if (EquipSound)
 		{
 			UGameplayStatics::PlaySoundAtLocation(this, EquipSound, GetActorLocation());
@@ -140,13 +156,19 @@ void AWeapon::OnRep_WeaponState()
 		break;
 		
 	case EWeaponState::EWS_Dropped:
+		SetReplicateMovement(true);
+		
 		WeaponMesh->SetSimulatePhysics(true);
 		WeaponMesh->SetEnableGravity(true);
 		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+
 		if (DroppedSound)
 		{
 			UGameplayStatics::PlaySoundAtLocation(this, DroppedSound, GetActorLocation());
 		}
+		break;
+
+	default:
 		break;
 	}
 }

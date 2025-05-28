@@ -40,10 +40,10 @@ protected:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UBoxComponent> CollisionBox;
 
-private:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UProjectileMovementComponent> ProjectileMovementComponent;
 
+private:
 	UPROPERTY(EditAnywhere, Category = "Projectile|Effects")
 	TObjectPtr<UParticleSystem> Tracer;
 
