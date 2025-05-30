@@ -153,7 +153,7 @@ private:
 
 	/** The name of the socket on the weapon skeletal mesh from where the casing should be spawned */
 	UPROPERTY(EditDefaultsOnly, Category = "WeaponProperties")
-	FName CasingSpawnSocketName;
+	FName CasingSpawnSocketName = FName("AmmoEject");
 
 	UPROPERTY()
 	TObjectPtr<ABlasterCharacter> BlasterOwnerCharacter;

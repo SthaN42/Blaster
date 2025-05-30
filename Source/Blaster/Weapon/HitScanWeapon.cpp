@@ -42,6 +42,10 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 				{
 					UGameplayStatics::SpawnEmitterAtLocation(World, ImpactParticles, FireHit.ImpactPoint, FireHit.ImpactNormal.Rotation());
 				}
+				if (HitSound)
+				{
+					UGameplayStatics::PlaySoundAtLocation(this, HitSound, FireHit.ImpactPoint);
+				}
 			}
 			if (BeamParticles)
 			{

@@ -365,6 +365,9 @@ void ABlasterCharacter::PlayReloadMontage() const
 		case EWeaponType::EWT_Pistol:
 			SectionName = FName("Pistol");
 			break;
+		case EWeaponType::EWT_SubmachineGun:
+			SectionName = FName("Pistol");
+			break;
 		}
 		
 		AnimInstance->Montage_JumpToSection(SectionName);

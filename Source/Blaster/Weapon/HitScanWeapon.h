@@ -21,6 +21,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "WeaponProperties")
 	float Damage = 20.f;
 
+	UPROPERTY(EditAnywhere, Category = "WeaponProperties|Sounds")
+	TObjectPtr<USoundBase> HitSound;
+
 	UPROPERTY(EditAnywhere, Category = "WeaponProperties|Effects")
 	TObjectPtr<UParticleSystem> ImpactParticles;
 	
