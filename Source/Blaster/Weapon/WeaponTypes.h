@@ -5,6 +5,7 @@
 UENUM(BlueprintType)
 enum class EWeaponType
 {
-	EWT_AssaultRifle UMETA(DisplayName = "Assault Rifle"),
+	EWT_Pistol UMETA(DisplayName = "Pistol"),
 	EWT_RocketLauncher UMETA(DisplayName = "Rocket Launcher"),
+	EWT_AssaultRifle UMETA(DisplayName = "Assault Rifle"),
 };
