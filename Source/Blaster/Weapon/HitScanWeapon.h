@@ -23,4 +23,7 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "WeaponProperties|Effects")
 	TObjectPtr<UParticleSystem> ImpactParticles;
+	
+	UPROPERTY(EditAnywhere, Category = "WeaponProperties|Effects")
+	TObjectPtr<UParticleSystem> BeamParticles;
 };
