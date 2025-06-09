@@ -9,8 +9,6 @@
 #include "Components/ActorComponent.h"
 #include "CombatComponent.generated.h"
 
-#define TRACE_LENGTH 100000.f;
-
 class ABlasterHUD;
 class ABlasterPlayerController;
 class AWeapon;

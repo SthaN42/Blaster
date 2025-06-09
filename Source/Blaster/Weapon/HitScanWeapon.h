@@ -17,6 +17,9 @@ class BLASTER_API AHitScanWeapon : public AWeapon
 public:
 	virtual void Fire(const FVector& HitTarget) override;
 
+protected:
+	FVector TraceEndWithScatter(const FVector& TraceStart, const FVector& HitTarget) const;
+
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "WeaponProperties")
 	float Damage = 20.f;
@@ -29,4 +32,15 @@ private:
 	
 	UPROPERTY(EditAnywhere, Category = "WeaponProperties|Effects")
 	TObjectPtr<UParticleSystem> BeamParticles;
+
+	/* Trace end with scatter */
+
+	UPROPERTY(EditDefaultsOnly, Category = "WeaponProperties|Scatter")
+	bool bUseScatter = false;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "WeaponProperties|Scatter", meta = (EditCondition = "bUseScatter"))
+	float DistanceToSphere = 800.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "WeaponProperties|Scatter", meta = (EditCondition = "bUseScatter"))
+	float SphereRadius = 75.f;
 };
