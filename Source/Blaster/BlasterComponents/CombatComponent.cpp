@@ -171,9 +171,10 @@ void UCombatComponent::ServerReload_Implementation()
 	HandleReload();
 }
 
-void UCombatComponent::HandleReload() const
+void UCombatComponent::HandleReload()
 {
 	Character->PlayReloadMontage();
+	SetAiming(false);
 }
 
 int32 UCombatComponent::GetAmountToReload()
@@ -234,16 +235,29 @@ void UCombatComponent::OnRep_CombatState()
 	case ECombatState::ECS_Reloading:
 		HandleReload();
 		break;
+	default:
+		break;
 	}
 }
 
 void UCombatComponent::SetAiming(bool bIsAiming)
 {
-	bAiming = bIsAiming;
+	if (Character == nullptr || EquippedWeapon == nullptr) return;
 
-	if (Character)
+	if (CombatState == ECombatState::ECS_Reloading)
 	{
-		Character->GetCharacterMovement()->MaxWalkSpeed = bIsAiming ? AimWalkSpeed : BaseWalkSpeed;
+		bAiming = false;
+	}
+	else
+	{
+		bAiming = bIsAiming;
+	}
+	
+	Character->GetCharacterMovement()->MaxWalkSpeed = bIsAiming ? AimWalkSpeed : BaseWalkSpeed;
+	
+	if (Character->IsLocallyControlled() && EquippedWeapon->GetWeaponType() == EWeaponType::EWT_SniperRifle)
+	{
+		Character->ShowSniperScopeWidget(bAiming);
 	}
 	
 	ServerSetAiming(bIsAiming);
@@ -251,7 +265,14 @@ void UCombatComponent::SetAiming(bool bIsAiming)
 
 void UCombatComponent::ServerSetAiming_Implementation(bool bIsAiming)
 {
-	bAiming = bIsAiming;
+	if (CombatState == ECombatState::ECS_Reloading)
+	{
+		bAiming = false;
+	}
+	else
+	{
+		bAiming = bIsAiming;
+	}
 
 	if (Character)
 	{
