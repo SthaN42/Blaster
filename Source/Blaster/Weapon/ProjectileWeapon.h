@@ -23,6 +23,6 @@ private:
 	TSubclassOf<AProjectile> ProjectileClass;
 
 	/** The name of the socket on the weapon skeletal mesh from where the projectile should be spawned */
-	UPROPERTY(EditDefaultsOnly, Category = "WeaponProperties|Projectile")
+	UPROPERTY(EditDefaultsOnly, Category = "WeaponProperties|Projectile", meta = (GetOptions = "GetMeshSocketNames"))
 	FName ProjectileSpawnSocketName;
 };

@@ -152,8 +152,14 @@ private:
 	TSubclassOf<ACasing> CasingClass;
 
 	/** The name of the socket on the weapon skeletal mesh from where the casing should be spawned */
-	UPROPERTY(EditDefaultsOnly, Category = "WeaponProperties")
+	UPROPERTY(EditDefaultsOnly, Category = "WeaponProperties", meta = (GetOptions = "GetMeshSocketNames"))
 	FName CasingSpawnSocketName = FName("AmmoEject");
+
+	UFUNCTION()
+	TArray<FName> GetMeshSocketNames() const
+	{
+		return WeaponMesh == nullptr ? TArray<FName>() : WeaponMesh->GetAllSocketNames();
+	}
 
 	UPROPERTY()
 	TObjectPtr<ABlasterCharacter> BlasterOwnerCharacter;
