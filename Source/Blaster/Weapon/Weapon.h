@@ -60,6 +60,7 @@ public:
 	FORCEINLINE int32 GetMagCapacity() const { return MagCapacity; }
 
 	bool IsEmpty() const;
+	bool IsFull() const;
 
 	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
 

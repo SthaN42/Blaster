@@ -110,6 +110,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool GetDisableGameplay() const;
 
+	FORCEINLINE UAnimMontage* GetReloadMontage() const { return ReloadMontage; }
+
 protected:
 	virtual void BeginPlay() override;
 

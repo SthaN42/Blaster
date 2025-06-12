@@ -4,6 +4,7 @@
 #include "Weapon.h"
 
 #include "Casing.h"
+#include "Blaster/BlasterComponents/CombatComponent.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Blaster/Character/BlasterCharacter.h"
 #include "Blaster/Player/BlasterPlayerController.h"
@@ -208,11 +209,20 @@ void AWeapon::SpendRound()
 void AWeapon::OnRep_Ammo()
 {
 	SetHUDAmmo();
+	if (WeaponType == EWeaponType::EWT_Shotgun && IsFull() && GetOwnerCharacter() && GetOwnerCharacter()->GetCombat())
+	{
+		GetOwnerCharacter()->GetCombat()->JumpToShotgunEnd();
+	}
 }
 
 bool AWeapon::IsEmpty() const
 {
 	return Ammo <= 0;
+}
+
+bool AWeapon::IsFull() const
+{
+	return Ammo == MagCapacity;
 }
 
 void AWeapon::Fire(const FVector& HitTarget)
