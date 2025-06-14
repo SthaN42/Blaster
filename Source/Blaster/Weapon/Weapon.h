@@ -45,6 +45,9 @@ public:
 
 	void AddAmmo(const int32 AmmoToAdd);
 
+	/** Enable or disable custom depth */
+	void EnableCustomDepth(const bool bEnable) const;
+
 	/* Getters / Setters */
 
 	void SetWeaponState(const EWeaponState InState);
@@ -161,6 +164,9 @@ private:
 	{
 		return WeaponMesh == nullptr ? TArray<FName>() : WeaponMesh->GetAllSocketNames();
 	}
+
+	UPROPERTY(EditDefaultsOnly, Category = "WeaponProperties")
+	EHighlightColor HighlightColor = EHighlightColor::Purple;
 
 	UPROPERTY()
 	TObjectPtr<ABlasterCharacter> BlasterOwnerCharacter;

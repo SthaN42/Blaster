@@ -15,3 +15,18 @@ enum class EWeaponType
 	EWT_SniperRifle UMETA(DisplayName = "Sniper Rifle"),
 	EWT_GrenadeLauncher UMETA(DisplayName = "Grenade Launcher"),
 };
+
+UENUM(BlueprintType)
+enum class EHighlightColor
+{
+	None = 0 UMETA(DisplayName = "None"),
+	Purple = 250 UMETA(DisplayName = "Purple"),
+	Blue = 251 UMETA(DisplayName = "Blue"),
+	Tan = 252 UMETA(DisplayName = "Tan"),
+
+	Max UMETA(DisplayName = "Max"),
+
+};
+
+// Dirty way to get the actual value stored in the EHighlightColor enum
+FORCEINLINE int32 operator * (EHighlightColor T) { return static_cast<int32>(T); }

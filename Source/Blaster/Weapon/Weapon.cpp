@@ -26,6 +26,8 @@ AWeapon::AWeapon()
 	WeaponMesh->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
+	EnableCustomDepth(true);
+
 	AreaSphere = CreateDefaultSubobject<USphereComponent>("AreaSphere");
 	AreaSphere->SetupAttachment(RootComponent);
 	
@@ -92,6 +94,19 @@ void AWeapon::AddAmmo(const int32 AmmoToAdd)
 	SetHUDAmmo();
 }
 
+void AWeapon::EnableCustomDepth(const bool bEnable) const
+{
+	if (WeaponMesh)
+	{
+		if (bEnable)
+		{
+			WeaponMesh->SetCustomDepthStencilValue(*HighlightColor);
+			WeaponMesh->MarkRenderStateDirty();
+		}
+		WeaponMesh->SetRenderCustomDepth(bEnable);
+	}
+}
+
 void AWeapon::SetWeaponState(const EWeaponState InState)
 {
 	WeaponState = InState;
@@ -104,6 +119,7 @@ void AWeapon::SetWeaponState(const EWeaponState InState)
 		ShowPickupWidget(false);
 		
 		AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		EnableCustomDepth(false);
 		
 		WeaponMesh->SetSimulatePhysics(false);
 		WeaponMesh->SetEnableGravity(false);
@@ -131,6 +147,7 @@ void AWeapon::SetWeaponState(const EWeaponState InState)
 		{
 			AreaSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 		}
+		EnableCustomDepth(true);
 		
 		WeaponMesh->SetSimulatePhysics(true);
 		WeaponMesh->SetEnableGravity(true);
@@ -158,6 +175,7 @@ void AWeapon::OnRep_WeaponState()
 		SetReplicateMovement(false);
 		
 		ShowPickupWidget(false);
+		EnableCustomDepth(false);
 
 		WeaponMesh->SetSimulatePhysics(false);
 		WeaponMesh->SetEnableGravity(false);
@@ -180,6 +198,8 @@ void AWeapon::OnRep_WeaponState()
 		
 	case EWeaponState::EWS_Dropped:
 		SetReplicateMovement(true);
+
+		EnableCustomDepth(true);
 		
 		WeaponMesh->SetSimulatePhysics(true);
 		WeaponMesh->SetEnableGravity(true);
@@ -257,6 +277,8 @@ void AWeapon::BeginPlay()
 
 		AreaSphere->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnSphereOverlap);
 		AreaSphere->OnComponentEndOverlap.AddDynamic(this, &ThisClass::OnSphereEnOverlap);
+
+		EnableCustomDepth(true);
 	}
 	if (PickupWidget)
 	{
