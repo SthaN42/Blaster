@@ -41,6 +41,7 @@ public:
 	void PlayFireMontage(bool bAiming) const;
 	void PlayReloadMontage() const;
 	void PlayElimMontage() const;
+	void PlayThrowGrenadeMontage() const;
 
 	virtual void OnRep_ReplicatedMovement() override;
 
@@ -54,6 +55,7 @@ public:
 
 	void EquipButtonPressed();
 	void DropButtonPressed();
+	void GrenadeButtonPressed();
 	void ReloadButtonPressed();
 	void AimButtonPressed();
 	void AimButtonReleased();
@@ -189,6 +191,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Combat|Animations")
 	TObjectPtr<UAnimMontage> ElimMontage;
+	
+	UPROPERTY(EditAnywhere, Category = "Combat|Animations")
+	TObjectPtr<UAnimMontage> ThrowGrenadeMontage;
 
 	/* Camera position */
 	

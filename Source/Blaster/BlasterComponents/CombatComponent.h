@@ -32,6 +32,11 @@ public:
 	void EquipWeapon(AWeapon* WeaponToEquip);
 
 	void DropWeapon();
+
+	void ThrowGrenade();
+
+	UFUNCTION(BlueprintCallable)
+	void ThrowGrenadeFinished();
 	
 	void Reload();
 
@@ -67,6 +72,9 @@ protected:
 	void ServerReload();
 	
 	void HandleReload();
+
+	UFUNCTION(Server, Reliable)
+	void ServerThrowGrenade();
 	
 	int32 GetAmountToReload();
 

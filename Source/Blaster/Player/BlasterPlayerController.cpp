@@ -263,6 +263,7 @@ void ABlasterPlayerController::SetupInputComponent()
 	BlasterInputComponent->BindNativeAction(InputConfig, this, BlasterGameplayTags::InputTag_Crouch, ETriggerEvent::Triggered, &ThisClass::Input_Crouch, false);
 	BlasterInputComponent->BindNativeAction(InputConfig, this, BlasterGameplayTags::InputTag_Equip, ETriggerEvent::Triggered, &ThisClass::Input_Equip, false);
 	BlasterInputComponent->BindNativeAction(InputConfig, this, BlasterGameplayTags::InputTag_Drop, ETriggerEvent::Triggered, &ThisClass::Input_Drop, false);
+	BlasterInputComponent->BindNativeAction(InputConfig, this, BlasterGameplayTags::InputTag_ThrowGrenade, ETriggerEvent::Triggered, &ThisClass::Input_ThrowGrenade, false);
 	BlasterInputComponent->BindNativeAction(InputConfig, this, BlasterGameplayTags::InputTag_Reload, ETriggerEvent::Triggered, &ThisClass::Input_Reload, false);
 	BlasterInputComponent->BindNativeAction(InputConfig, this, BlasterGameplayTags::InputTag_Aim, ETriggerEvent::Started, &ThisClass::Input_AimPressed, false);
 	BlasterInputComponent->BindNativeAction(InputConfig, this, BlasterGameplayTags::InputTag_Aim, ETriggerEvent::Completed, &ThisClass::Input_AimReleased, false);
@@ -332,6 +333,13 @@ void ABlasterPlayerController::Input_Drop(const FInputActionValue& InputActionVa
 	if (!GetBlasterCharacter() || bDisableGameplay) return;
 
 	GetBlasterCharacter()->DropButtonPressed();
+}
+
+void ABlasterPlayerController::Input_ThrowGrenade(const FInputActionValue& InputActionValue)
+{
+	if (!GetBlasterCharacter() || bDisableGameplay) return;
+
+	GetBlasterCharacter()->GrenadeButtonPressed();
 }
 
 void ABlasterPlayerController::Input_Reload(const FInputActionValue& InputActionValue)

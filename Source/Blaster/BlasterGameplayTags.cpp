@@ -13,4 +13,5 @@ namespace BlasterGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(InputTag_Fire, "InputTag.Fire", "Fire input.");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(InputTag_Reload, "InputTag.Reload", "Reload input.");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(InputTag_Drop, "InputTag.Drop", "Drop input.");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(InputTag_ThrowGrenade, "InputTag.ThrowGrenade", "Throw Grenade input.");
 }

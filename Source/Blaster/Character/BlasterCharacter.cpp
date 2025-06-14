@@ -391,6 +391,14 @@ void ABlasterCharacter::PlayElimMontage() const
 	}
 }
 
+void ABlasterCharacter::PlayThrowGrenadeMontage() const
+{
+	if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance(); AnimInstance && ThrowGrenadeMontage)
+	{
+		AnimInstance->Montage_Play(ThrowGrenadeMontage);
+	}
+}
+
 void ABlasterCharacter::PlayHitReactMontage() const
 {
 	if (Combat == nullptr || Combat->EquippedWeapon == nullptr) return;
@@ -573,6 +581,14 @@ void ABlasterCharacter::ServerDropButtonPressed_Implementation()
 // 	{
 // 		Combat->DropWeapon();
 // 	}
+}
+
+void ABlasterCharacter::GrenadeButtonPressed()
+{
+	if (Combat)
+	{
+		Combat->ThrowGrenade();
+	}
 }
 
 void ABlasterCharacter::ReloadButtonPressed()
