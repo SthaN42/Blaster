@@ -260,4 +260,9 @@ private:
 	UFUNCTION()
 	void UpdateDissolveEffect(float DissolveValue);
 	void StartDissolveEffect();
+
+	/* Grenade */
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UStaticMeshComponent> AttachedGrenade;
 };

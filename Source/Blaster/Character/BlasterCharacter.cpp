@@ -63,6 +63,10 @@ ABlasterCharacter::ABlasterCharacter()
 	DissolveParticlesSystem = CreateDefaultSubobject<UNiagaraComponent>(TEXT("DissolveParticlesComponent"));
 	DissolveParticlesSystem->SetupAttachment(GetMesh());
 	DissolveParticlesSystem->bAutoActivate = false;
+
+	AttachedGrenade = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AttachedGrenade"));
+	AttachedGrenade->SetupAttachment(GetMesh(), FName("GrenadeRightHandSocket"));
+	AttachedGrenade->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 FVector ABlasterCharacter::GetHitTarget() const

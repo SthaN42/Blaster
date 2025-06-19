@@ -209,7 +209,7 @@ void UCombatComponent::Reload()
 {
 	if (Character == nullptr || EquippedWeapon == nullptr) return;
 
-	if (EquippedWeapon->GetAmmo() == EquippedWeapon->GetMagCapacity()) return;
+	if (EquippedWeapon->IsFull()) return;
 	
 	if (CarriedAmmo > 0 && CombatState == ECombatState::ECS_Unoccupied)
 	{
