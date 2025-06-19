@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blaster/BlasterTypes/CombatState.h"
+#include "Blaster/Character/BlasterCharacter.h"
 #include "Blaster/UI/BlasterHUD.h"
 #include "Blaster/Weapon/WeaponTypes.h"
 #include "Components/ActorComponent.h"
@@ -12,7 +13,6 @@
 class ABlasterHUD;
 class ABlasterPlayerController;
 class AWeapon;
-class ABlasterCharacter;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class BLASTER_API UCombatComponent : public UActorComponent
@@ -48,7 +48,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ShotgunShellReload();
 
-	void JumpToShotgunEnd();
+	void JumpToShotgunEnd() const;
 	
 protected:
 	void SetAiming(bool bIsAiming);
@@ -77,6 +77,11 @@ protected:
 	void ServerThrowGrenade();
 	
 	int32 GetAmountToReload();
+
+	void AttachActorToRightHand(AActor* ActorToAttach) const;
+	void AttachActorToLeftHand(AActor* ActorToAttach) const;
+
+	void UpdateCarriedAmmo();
 
 private:
 	UPROPERTY()
