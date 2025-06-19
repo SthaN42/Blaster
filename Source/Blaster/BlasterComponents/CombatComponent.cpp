@@ -3,8 +3,11 @@
 
 #include "CombatComponent.h"
 
+#include <filesystem>
+
 #include "Blaster/Character/BlasterCharacter.h"
 #include "Blaster/Player/BlasterPlayerController.h"
+#include "Blaster/Weapon/Projectile.h"
 #include "Blaster/Weapon/Weapon.h"
 #include "Blaster/Weapon/WeaponTypes.h"
 #include "Camera/CameraComponent.h"
@@ -177,7 +180,7 @@ void UCombatComponent::UpdateCarriedAmmo()
 
 void UCombatComponent::ThrowGrenade()
 {
-	if (Character == nullptr || CombatState != ECombatState::ECS_Unoccupied) return;
+	if (Character == nullptr || EquippedWeapon == nullptr || CombatState != ECombatState::ECS_Unoccupied) return;
 	
 	CombatState = ECombatState::ECS_ThrowingGrenade;
 
@@ -205,6 +208,26 @@ void UCombatComponent::ThrowGrenadeFinished()
 {
 	CombatState = ECombatState::ECS_Unoccupied;
 	AttachActorToRightHand(EquippedWeapon);
+}
+
+void UCombatComponent::LaunchGrenade() const
+{
+	SetAttachedGrenadeVisibility(false);
+	
+	if (Character && Character->HasAuthority() && GrenadeClass && Character->GetAttachedGrenade())
+	{
+		const FVector StartingLocation = Character->GetAttachedGrenade()->GetComponentLocation();
+		const FVector ToTarget = HitTarget - StartingLocation;
+		
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = Character;
+		SpawnParams.Instigator = Character;
+		
+		if (UWorld* World = GetWorld())
+		{
+			World->SpawnActor<AProjectile>(GrenadeClass, StartingLocation, ToTarget.Rotation(), SpawnParams);
+		}
+	}
 }
 
 void UCombatComponent::SetAttachedGrenadeVisibility(const bool bInVisibility) const

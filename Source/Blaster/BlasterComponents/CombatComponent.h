@@ -10,6 +10,7 @@
 #include "Components/ActorComponent.h"
 #include "CombatComponent.generated.h"
 
+class AProjectile;
 class ABlasterHUD;
 class ABlasterPlayerController;
 class AWeapon;
@@ -49,8 +50,14 @@ public:
 	void ShotgunShellReload();
 
 	void JumpToShotgunEnd() const;
+
+	UFUNCTION(BlueprintCallable)
+	void LaunchGrenade() const;
 	
 protected:
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
+	TSubclassOf<AProjectile> GrenadeClass;
+	
 	void SetAiming(bool bIsAiming);
 
 	UFUNCTION(Server, Reliable)
@@ -82,8 +89,7 @@ protected:
 	void AttachActorToLeftHand(AActor* ActorToAttach) const;
 
 	void UpdateCarriedAmmo();
-
-	UFUNCTION(BlueprintCallable)
+	
 	void SetAttachedGrenadeVisibility(const bool bInVisibility) const;
 
 private:
