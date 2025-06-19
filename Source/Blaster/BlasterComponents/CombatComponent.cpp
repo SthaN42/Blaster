@@ -183,6 +183,7 @@ void UCombatComponent::ThrowGrenade()
 
 	Character->PlayThrowGrenadeMontage();
 	AttachActorToLeftHand(EquippedWeapon);
+	SetAttachedGrenadeVisibility(true);
 
 	if (!Character->HasAuthority())
 	{
@@ -197,12 +198,21 @@ void UCombatComponent::ServerThrowGrenade_Implementation()
 
 	Character->PlayThrowGrenadeMontage();
 	AttachActorToLeftHand(EquippedWeapon);
+	SetAttachedGrenadeVisibility(true);
 }
 
 void UCombatComponent::ThrowGrenadeFinished()
 {
 	CombatState = ECombatState::ECS_Unoccupied;
 	AttachActorToRightHand(EquippedWeapon);
+}
+
+void UCombatComponent::SetAttachedGrenadeVisibility(const bool bInVisibility) const
+{
+	if (Character && Character->GetAttachedGrenade())
+	{
+		Character->GetAttachedGrenade()->SetVisibility(bInVisibility);
+	}
 }
 
 void UCombatComponent::Reload()
@@ -335,6 +345,7 @@ void UCombatComponent::OnRep_CombatState()
 		{
 			Character->PlayThrowGrenadeMontage();
 			AttachActorToLeftHand(EquippedWeapon);
+			SetAttachedGrenadeVisibility(true);
 		}
 		break;
 	default:

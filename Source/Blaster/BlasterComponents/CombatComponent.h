@@ -83,6 +83,9 @@ protected:
 
 	void UpdateCarriedAmmo();
 
+	UFUNCTION(BlueprintCallable)
+	void SetAttachedGrenadeVisibility(const bool bInVisibility) const;
+
 private:
 	UPROPERTY()
 	TObjectPtr<ABlasterCharacter> Character;

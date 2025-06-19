@@ -99,6 +99,10 @@ void ABlasterCharacter::BeginPlay()
 		DefaultCameraPosition_Z = CameraBoom->SocketOffset.Z;
 		CurrentCameraPosition_Z = DefaultCameraPosition_Z;
 	}
+	if (AttachedGrenade)
+	{
+		AttachedGrenade->SetVisibility(false);
+	}
 
 	UpdateHUDHealth();
 
