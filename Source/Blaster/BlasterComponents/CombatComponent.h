@@ -53,6 +53,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void LaunchGrenade() const;
+
+	UFUNCTION(Server, Reliable)
+	void ServerLaunchGrenade(const FVector_NetQuantize& Target) const;
 	
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")

@@ -3,6 +3,7 @@
 
 #include "ProjectileGrenade.h"
 
+#include "Components/BoxComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -27,6 +28,7 @@ void AProjectileGrenade::BeginPlay()
 	StartDestroyTimer();
 
 	ProjectileMovementComponent->OnProjectileBounce.AddDynamic(this, &ThisClass::OnBounce);
+	CollisionBox->IgnoreActorWhenMoving(Owner, true);
 }
 
 void AProjectileGrenade::Destroyed()
