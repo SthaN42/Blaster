@@ -16,6 +16,8 @@ class BLASTER_API APickup : public AActor
 public:	
 	APickup();
 
+	virtual void Tick(float DeltaSeconds) override;
+
 	virtual void Destroyed() override;
 	
 protected:
@@ -23,6 +25,9 @@ protected:
 
 	UFUNCTION()
 	virtual void OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UPROPERTY(EditDefaultsOnly, Category = "Pickup")
+	float BaseTurnRate = 45.f;
 
 private:
 	UPROPERTY(EditAnywhere)

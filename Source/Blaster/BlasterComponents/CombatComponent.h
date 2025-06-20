@@ -57,6 +57,8 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerLaunchGrenade(const FVector_NetQuantize& Target) const;
 
+	void PickupAmmo(EWeaponType WeaponType, int32 AmmoAmount);
+
 	FORCEINLINE int32 GetCarriedGrenades() const { return CarriedGrenades; }
 	
 protected:
@@ -174,8 +176,11 @@ private:
 	
 	TMap<EWeaponType, int32> CarriedAmmoMap;
 
-	UPROPERTY(EditAnywhere, Category = "Combat", meta=(ForceInlineRow))
+	UPROPERTY(EditDefaultsOnly, Category = "Combat", meta=(ForceInlineRow))
 	TMap<EWeaponType, int32> StartingCarriedAmmoMap;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat", meta=(ForceInlineRow))
+	TMap<EWeaponType, int32> MaxCarriedAmmoMap;
 
 	void InitializeCarriedAmmo();
 
