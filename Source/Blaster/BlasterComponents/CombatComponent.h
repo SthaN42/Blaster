@@ -56,9 +56,11 @@ public:
 
 	UFUNCTION(Server, Reliable)
 	void ServerLaunchGrenade(const FVector_NetQuantize& Target) const;
+
+	FORCEINLINE int32 GetCarriedGrenades() const { return CarriedGrenades; }
 	
 protected:
-	UPROPERTY(EditDefaultsOnly, Category = "Combat")
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Grenades")
 	TSubclassOf<AProjectile> GrenadeClass;
 	
 	void SetAiming(bool bIsAiming);
@@ -179,4 +181,18 @@ private:
 
 	void UpdateAmmoValues();
 	void UpdateShotgunAmmoValues();
+
+	UPROPERTY(ReplicatedUsing = OnRep_Grenades)
+	int32 CarriedGrenades;
+
+	UFUNCTION()
+	void OnRep_Grenades();
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Grenades")
+	int32 StartingGrenades = 4;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Grenades")
+	int32 MaxGrenades = 4;
+
+	void UpdateHUDGrenades();
 };

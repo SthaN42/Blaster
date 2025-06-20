@@ -34,6 +34,7 @@ public:
 	void SetHUDCarriedAmmo(const int32 Ammo);
 	void SetHUDAnnouncementCountdown(const uint32 CountdownTime);
 	void SetHUDMatchCountdown(const uint32 CountdownTime);
+	void SetHUDGrenades(const int32 Grenades);
 
 	virtual void OnPossess(APawn* InPawn) override;
 	virtual void ReceivedPlayer() override; // sync with the server clock as soon as possible

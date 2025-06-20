@@ -37,4 +37,7 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget, BlueprintProtected = true))
 	UTextBlock* MatchCountdownText;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget, BlueprintProtected = true))
+	UTextBlock* GrenadesText;
 };
