@@ -8,6 +8,7 @@
 #include "Components/TimelineComponent.h"
 #include "BlasterCharacter.generated.h"
 
+class UBuffComponent;
 class ABlasterPlayerController;
 class ABlasterPlayerState;
 enum class ETurningInPlace : uint8;
@@ -156,6 +157,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = true))
 	TObjectPtr<UCombatComponent> Combat;
+
+	UPROPERTY(visibleAnywhere, BlueprintReadOnly, Category = "Buff", meta = (AllowPrivateAccess = true))
+	TObjectPtr<UBuffComponent> Buff;
 
 	UFUNCTION(Server, Reliable)
 	void ServerEquipButtonPressed();
