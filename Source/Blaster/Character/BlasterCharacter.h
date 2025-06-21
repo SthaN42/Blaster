@@ -65,6 +65,8 @@ public:
 	virtual void Jump() override;
 	void ToggleCrouch();
 
+	void UpdateHUDHealth();
+
 	UPROPERTY()
 	ABlasterPlayerState* BlasterPlayerState;
 
@@ -102,6 +104,7 @@ public:
 	FORCEINLINE bool IsEliminated() const { return bEliminated; }
 
 	FORCEINLINE float GetHealth() const { return Health; }
+	FORCEINLINE void SetHealth(const float Amount) { Health = Amount; }
 
 	FORCEINLINE float GetMaxHealth() const { return MaxHealth; }
 
@@ -109,6 +112,7 @@ public:
 	ECombatState GetCombatState() const;
 
 	FORCEINLINE UCombatComponent* GetCombat() const { return Combat; }
+	FORCEINLINE UBuffComponent* GetBuff() const { return Buff; }
 
 	UFUNCTION(BlueprintCallable)
 	bool GetDisableGameplay() const;
@@ -128,8 +132,6 @@ protected:
 
 	UFUNCTION()
 	void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, class AController* InstigatorController, AActor* DamageCauser);
-
-	void UpdateHUDHealth();
 
 	// Poll for any relevant classes and initialize our HUD
 	void PollInit();
@@ -229,7 +231,7 @@ private:
 	float Health = 100.f;
 
 	UFUNCTION()
-	void OnRep_Health();
+	void OnRep_Health(float LastHealth);
 
 	UPROPERTY()
 	ABlasterPlayerController* BlasterPlayerController;
