@@ -77,3 +77,29 @@ void UBuffComponent::MulticastSpeedBuff_Implementation(float BaseSpeed, float Ai
 		Character->GetCombat()->SetSpeeds(BaseSpeed, AimSpeed, CrouchSpeed);
 	}
 }
+
+void UBuffComponent::BuffJump(float BuffJumpVelocity, float BuffDuration)
+{
+	if (Character && Character->GetCharacterMovement())
+	{
+		Character->GetWorldTimerManager().SetTimer(JumpBuffTimer, this, &ThisClass::ResetJump, BuffDuration);
+
+		MulticastJumpBuff(BuffJumpVelocity);
+	}
+}
+
+void UBuffComponent::ResetJump()
+{
+	if (Character && Character->GetCharacterMovement())
+	{
+		MulticastJumpBuff(InitialJumpVelocity);
+	}
+}
+
+void UBuffComponent::MulticastJumpBuff_Implementation(float JumpVelocity)
+{
+	if (Character && Character->GetCharacterMovement())
+	{
+		Character->GetCharacterMovement()->JumpZVelocity = JumpVelocity;
+	}
+}

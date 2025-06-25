@@ -32,6 +32,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Buff")
 	void BuffSpeed(float BuffBaseSpeed, float BuffAimSpeed, float BuffCrouchSpeed, float BuffDuration);
 
+	/* Jump Buff */
+	
+	void SetInitialJumpVelocity(float Velocity) { InitialJumpVelocity = Velocity; }
+
+	UFUNCTION(BlueprintCallable, Category="Buff")
+	void BuffJump(float BuffJumpVelocity, float BuffDuration);
+	
 protected:
 	virtual void BeginPlay() override;
 
@@ -58,4 +65,14 @@ private:
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastSpeedBuff(float BaseSpeed, float AimSpeed, float CrouchSpeed);
+
+	/* Jump Buff */
+
+	FTimerHandle JumpBuffTimer;
+	float InitialJumpVelocity;
+
+	void ResetJump();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastJumpBuff(float JumpVelocity);
 };
