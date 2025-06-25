@@ -111,7 +111,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	ECombatState GetCombatState() const;
 
+	/** Returns the Combat Component of the character. Can be null on the first few frames of the game. */
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Components")
 	FORCEINLINE UCombatComponent* GetCombat() const { return Combat; }
+	
+	/** Returns the Buff Component of the character. Can be null on the first few frames of the game. */
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Components")
 	FORCEINLINE UBuffComponent* GetBuff() const { return Buff; }
 
 	UFUNCTION(BlueprintCallable)

@@ -459,6 +459,17 @@ void UCombatComponent::ServerSetAiming_Implementation(bool bIsAiming)
 	}
 }
 
+void UCombatComponent::SetSpeeds(float InBaseWalkSpeed, float InAimWalkSpeed, float InCrouchSpeed)
+{
+	if (Character == nullptr || Character->GetCharacterMovement() == nullptr) return;
+
+	BaseWalkSpeed = InBaseWalkSpeed;
+	AimWalkSpeed = InAimWalkSpeed;
+
+	Character->GetCharacterMovement()->MaxWalkSpeed = bAiming ? AimWalkSpeed : BaseWalkSpeed;
+	Character->GetCharacterMovement()->MaxWalkSpeedCrouched = InCrouchSpeed;
+}
+
 void UCombatComponent::FireButtonPressed(const bool bPressed)
 {
 	bFireButtonPressed = bPressed;

@@ -57,9 +57,14 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerLaunchGrenade(const FVector_NetQuantize& Target) const;
 
+	UFUNCTION(BlueprintCallable, Category = "Pickup")
 	void PickupAmmo(EWeaponType WeaponType, int32 AmmoAmount);
 
+	/* Getters / Setters */
+	
 	FORCEINLINE int32 GetCarriedGrenades() const { return CarriedGrenades; }
+
+	void SetSpeeds(float InBaseWalkSpeed, float InAimWalkSpeed, float InCrouchSpeed);
 	
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Grenades")

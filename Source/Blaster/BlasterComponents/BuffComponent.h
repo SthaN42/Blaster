@@ -20,7 +20,17 @@ public:
 	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	/* Heal Buff */
+	
+	UFUNCTION(BlueprintCallable, Category="Buff")
 	void Heal(float HealAmount, float HealingTime);
+
+	/* Speed Buff */
+	
+	void SetInitialSpeeds(float BaseSpeed, float AimSpeed, float CrouchSpeed) { InitialBaseSpeed = BaseSpeed; InitialAimSpeed = AimSpeed; InitialCrouchSpeed = CrouchSpeed; }
+
+	UFUNCTION(BlueprintCallable, Category="Buff")
+	void BuffSpeed(float BuffBaseSpeed, float BuffAimSpeed, float BuffCrouchSpeed, float BuffDuration);
 
 protected:
 	virtual void BeginPlay() override;
@@ -31,7 +41,21 @@ private:
 	UPROPERTY()
 	TObjectPtr<ABlasterCharacter> Character;
 
+	/* Heal Buff */
+
 	bool bHealing = false;
 	float HealingRate = 0.f;
 	float AmountToHeal = 0.f;
+
+	/* Speed Buff */
+
+	FTimerHandle SpeedBuffTimer;
+	float InitialBaseSpeed;
+	float InitialAimSpeed;
+	float InitialCrouchSpeed;
+	
+	void ResetSpeeds();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastSpeedBuff(float BaseSpeed, float AimSpeed, float CrouchSpeed);
 };

@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "Pickup.generated.h"
 
+class UNiagaraSystem;
+class UNiagaraComponent;
 class USphereComponent;
 
 UCLASS()
@@ -23,8 +25,8 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	UFUNCTION()
-	virtual void OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	UFUNCTION(BlueprintNativeEvent, Category = "Pickup")
+	void OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Pickup")
 	float BaseTurnRate = 45.f;
@@ -38,4 +40,10 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Pickup")
 	TObjectPtr<USoundBase> PickupSound;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UNiagaraComponent> PickupEffectComponent;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Pickup")
+	TObjectPtr<UNiagaraSystem> PickupEffect;
 };
