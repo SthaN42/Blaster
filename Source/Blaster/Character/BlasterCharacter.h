@@ -109,6 +109,11 @@ public:
 
 	FORCEINLINE float GetMaxHealth() const { return MaxHealth; }
 
+	FORCEINLINE float GetShield() const { return Shield; }
+	FORCEINLINE void SetShield(const float Amount) { Shield = Amount; }
+
+	FORCEINLINE float GetMaxShield() const { return MaxShield; }
+	
 	UFUNCTION(BlueprintCallable)
 	ECombatState GetCombatState() const;
 

@@ -3,8 +3,6 @@
 
 #include "CombatComponent.h"
 
-#include <filesystem>
-
 #include "Blaster/Character/BlasterCharacter.h"
 #include "Blaster/Player/BlasterPlayerController.h"
 #include "Blaster/Weapon/Projectile.h"
@@ -39,6 +37,8 @@ void UCombatComponent::BeginPlay()
 		{
 			InitializeCarriedAmmo();
 		}
+		UpdateHUDAmmo();
+		UpdateHUDGrenades();
 	}
 }
 
@@ -186,11 +186,7 @@ void UCombatComponent::UpdateCarriedAmmo()
 		CarriedAmmo = CarriedAmmoMap[EquippedWeapon->GetWeaponType()];
 	}
 	
-	Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
-	if (Controller)
-	{
-		Controller->SetHUDCarriedAmmo(CarriedAmmo);
-	}
+	UpdateHUDAmmo();
 }
 
 void UCombatComponent::ThrowGrenade()
@@ -228,6 +224,15 @@ void UCombatComponent::ServerThrowGrenade_Implementation()
 
 	CarriedGrenades = FMath::Clamp(CarriedGrenades - 1, 0, MaxGrenades);
 	UpdateHUDGrenades();
+}
+
+void UCombatComponent::UpdateHUDAmmo()
+{
+	Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
+	if (Controller)
+	{
+		Controller->SetHUDCarriedAmmo(CarriedAmmo);
+	}
 }
 
 void UCombatComponent::UpdateHUDGrenades()
@@ -353,11 +358,7 @@ void UCombatComponent::UpdateAmmoValues()
 
 		EquippedWeapon->AddAmmo(ReloadAmount);
 	}
-	Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
-	if (Controller)
-	{
-		Controller->SetHUDCarriedAmmo(CarriedAmmo);
-	}
+	UpdateHUDAmmo();
 }
 
 void UCombatComponent::UpdateShotgunAmmoValues()
@@ -372,11 +373,7 @@ void UCombatComponent::UpdateShotgunAmmoValues()
 		EquippedWeapon->AddAmmo(1);
 		bCanFire = true;
 	}
-	Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
-	if (Controller)
-	{
-		Controller->SetHUDCarriedAmmo(CarriedAmmo);
-	}
+	UpdateHUDAmmo();
 
 	if (EquippedWeapon->IsFull() || CarriedAmmo == 0)
 	{
@@ -691,18 +688,15 @@ void UCombatComponent::FireTimerFinished()
 
 void UCombatComponent::OnRep_CarriedAmmo()
 {
-	Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
-	if (Controller)
-	{
-		Controller->SetHUDCarriedAmmo(CarriedAmmo);
-	}
+	UpdateHUDAmmo();
+	
 	if (CombatState == ECombatState::ECS_Reloading && EquippedWeapon != nullptr && EquippedWeapon->GetWeaponType() == EWeaponType::EWT_Shotgun && CarriedAmmo == 0)
 	{
 		JumpToShotgunEnd();
 	}
 }
 
-void UCombatComponent::OnRep_Grenades()
+void UCombatComponent::OnRep_CarriedGrenades()
 {
 	UpdateHUDGrenades();
 }

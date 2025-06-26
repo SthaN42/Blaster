@@ -63,6 +63,8 @@ public:
 	/* Getters / Setters */
 	
 	FORCEINLINE int32 GetCarriedGrenades() const { return CarriedGrenades; }
+	
+	FORCEINLINE int32 GetStartingGrenades() const { return StartingGrenades; }
 
 	void SetSpeeds(float InBaseWalkSpeed, float InAimWalkSpeed, float InCrouchSpeed);
 	
@@ -174,7 +176,7 @@ private:
 
 	// Carried ammo for the currently equipped weapon
 	UPROPERTY(ReplicatedUsing = OnRep_CarriedAmmo)
-	int32 CarriedAmmo;
+	int32 CarriedAmmo = 0;
 
 	UFUNCTION()
 	void OnRep_CarriedAmmo();
@@ -192,11 +194,13 @@ private:
 	void UpdateAmmoValues();
 	void UpdateShotgunAmmoValues();
 
-	UPROPERTY(ReplicatedUsing = OnRep_Grenades)
-	int32 CarriedGrenades;
+	void UpdateHUDAmmo();
+
+	UPROPERTY(ReplicatedUsing = OnRep_CarriedGrenades)
+	int32 CarriedGrenades = 0;
 
 	UFUNCTION()
-	void OnRep_Grenades();
+	void OnRep_CarriedGrenades();
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Grenades")
 	int32 StartingGrenades = 4;

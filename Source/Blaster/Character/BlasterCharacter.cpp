@@ -109,6 +109,7 @@ void ABlasterCharacter::BeginPlay()
 	}
 
 	UpdateHUDHealth();
+	UpdateHUDShield();
 
 	if (HasAuthority())
 	{
@@ -289,6 +290,22 @@ void ABlasterCharacter::OnRep_Shield(float LastShield)
 	}
 }
 
+void ABlasterCharacter::UpdateHUDHealth()
+{
+	if (GetBlasterPlayerController())
+	{
+		GetBlasterPlayerController()->SetHUDHealth(Health, MaxHealth);
+	}
+}
+
+void ABlasterCharacter::UpdateHUDShield()
+{
+	if (GetBlasterPlayerController())
+	{
+		GetBlasterPlayerController()->SetHUDShield(Shield, MaxShield);
+	}
+}
+
 void ABlasterCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
@@ -451,8 +468,25 @@ void ABlasterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const 
 {
 	if (bEliminated == true) return;
 	
-	Health = FMath::Clamp(Health - Damage, 0.f, MaxHealth);
+	float DamageToHealth = Damage;
+	if (Shield > 0.f)
+	{
+		if (Shield >= Damage)
+		{
+			DamageToHealth = 0.f;
+			Shield = FMath::Clamp(Shield - Damage, 0.f, MaxShield);
+		}
+		else
+		{
+			DamageToHealth = FMath::Clamp(DamageToHealth - Shield, 0.f, Damage);
+			Shield = 0.f;
+		}
+	}
+	
+	Health = FMath::Clamp(Health - DamageToHealth, 0.f, MaxHealth);
+	
 	UpdateHUDHealth();
+	UpdateHUDShield();
 	PlayHitReactMontage();
 
 	if (Health <= 0.f)
@@ -462,22 +496,6 @@ void ABlasterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const 
 			ABlasterPlayerController* AttackerController = Cast<ABlasterPlayerController>(InstigatorController);
 			BlasterGameMode->PlayerEliminated(this, GetBlasterPlayerController(), AttackerController);
 		}
-	}
-}
-
-void ABlasterCharacter::UpdateHUDHealth()
-{
-	if (GetBlasterPlayerController())
-	{
-		GetBlasterPlayerController()->SetHUDHealth(Health, MaxHealth);
-	}
-}
-
-void ABlasterCharacter::UpdateHUDShield()
-{
-	if (GetBlasterPlayerController())
-	{
-		GetBlasterPlayerController()->SetHUDShield(Shield, MaxShield);
 	}
 }
 
