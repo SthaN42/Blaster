@@ -28,6 +28,7 @@ public:
 	ABlasterCharacter* GetBlasterCharacter() const;
 
 	void SetHUDHealth(const float Health, const float MaxHealth);
+	void SetHUDShield(const float Shield, const float MaxShield);
 	void SetHUDScore(const int32 Score);
 	void SetHUDDefeats(const int32 Defeats);
 	void SetHUDWeaponAmmo(const int32 Ammo);
@@ -136,6 +137,8 @@ private:
 
 	float HUDHealth;
 	float HUDMaxHealth;
+	float HUDShield;
+	float HUDMaxShield;
 	int32 HUDScore;
 	int32 HUDDefeats;
 };

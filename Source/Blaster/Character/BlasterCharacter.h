@@ -66,6 +66,7 @@ public:
 	void ToggleCrouch();
 
 	void UpdateHUDHealth();
+	void UpdateHUDShield();
 
 	UPROPERTY()
 	ABlasterPlayerState* BlasterPlayerState;
@@ -226,8 +227,6 @@ private:
 	float CameraThreshold = 200.f;
 
 	/* Player Health */
-
-	bool bEliminated = false;
 	
 	UPROPERTY(EditAnywhere, Category = "Player Stats")
 	float MaxHealth = 100.f;
@@ -238,8 +237,16 @@ private:
 	UFUNCTION()
 	void OnRep_Health(float LastHealth);
 
-	UPROPERTY()
-	ABlasterPlayerController* BlasterPlayerController;
+	UPROPERTY(EditAnywhere, Category = "Player Stats")
+	float MaxShield = 100.f;
+
+	UPROPERTY(ReplicatedUsing = OnRep_Shield, VisibleAnywhere, Category = "Player Stats")
+	float Shield = 100.f;
+
+	UFUNCTION()
+	void OnRep_Shield(float LastShield);
+
+	bool bEliminated = false;
 
 	FTimerHandle ElimTimer;
 
@@ -247,6 +254,9 @@ private:
 	float ElimDelay = 3.f;
 
 	void ElimTimerFinished();
+
+	UPROPERTY()
+	ABlasterPlayerController* BlasterPlayerController;
 
 	/* Elim Effect */
 
