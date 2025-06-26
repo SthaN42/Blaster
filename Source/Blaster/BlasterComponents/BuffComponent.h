@@ -25,6 +25,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Buff")
 	void Heal(float HealAmount, float HealingTime);
 
+	/* Shield Buff */
+	
+	UFUNCTION(BlueprintCallable, Category="Buff")
+	void ReplenishShield(float ShieldAmount, float ReplenishTime);
+
 	/* Speed Buff */
 	
 	void SetInitialSpeeds(float BaseSpeed, float AimSpeed, float CrouchSpeed) { InitialBaseSpeed = BaseSpeed; InitialAimSpeed = AimSpeed; InitialCrouchSpeed = CrouchSpeed; }
@@ -43,6 +48,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	void HealRampUp(float DeltaTime);
+	void ShieldRampUp(float DeltaTime);
 
 private:
 	UPROPERTY()
@@ -53,6 +59,12 @@ private:
 	bool bHealing = false;
 	float HealingRate = 0.f;
 	float AmountToHeal = 0.f;
+
+	/* Shield Buff */
+
+	bool bReplenishingShield = false;
+	float ShieldReplenishRate = 0.f;
+	float ShieldReplenishAmount = 0.f;
 
 	/* Speed Buff */
 
