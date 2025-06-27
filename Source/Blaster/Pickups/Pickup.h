@@ -46,4 +46,8 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Pickup")
 	TObjectPtr<UNiagaraSystem> PickupEffect;
+
+	FTimerHandle BindOverlapTimer;
+	float BindOverlapTime = 0.25f;
+	void BindOverlapTimerCallback();
 };
