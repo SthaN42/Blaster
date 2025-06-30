@@ -271,6 +271,10 @@ void ABlasterCharacter::HideCharacterIfCameraClose() const
 	{
 		Combat->EquippedWeapon->GetWeaponMesh()->bOwnerNoSee = bCameraTooClose;
 	}
+	if (Combat && Combat->SecondaryWeapon && Combat->SecondaryWeapon->GetWeaponMesh())
+	{
+		Combat->SecondaryWeapon->GetWeaponMesh()->bOwnerNoSee = bCameraTooClose;
+	}
 }
 
 void ABlasterCharacter::OnRep_Health(float LastHealth)
@@ -620,17 +624,7 @@ void ABlasterCharacter::StartDissolveEffect()
 
 void ABlasterCharacter::EquipButtonPressed()
 {
-	if (HasAuthority())
-	{
-		if (Combat)
-		{
-			Combat->EquipWeapon(OverlappingWeapon);
-		}
-	}
-	else
-	{
-		ServerEquipButtonPressed();
-	}
+	ServerEquipButtonPressed();
 }
 
 void ABlasterCharacter::ServerEquipButtonPressed_Implementation()

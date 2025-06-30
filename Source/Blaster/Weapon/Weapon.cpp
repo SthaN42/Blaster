@@ -57,7 +57,10 @@ void AWeapon::OnRep_Owner()
 	}
 	else
 	{
-		SetHUDAmmo();
+		if (GetOwnerCharacter() && GetOwnerCharacter()->GetEquippedWeapon() && GetOwnerCharacter()->GetEquippedWeapon() == this)
+		{
+			SetHUDAmmo();
+		}
 	}
 }
 
@@ -119,7 +122,6 @@ void AWeapon::SetWeaponState(const EWeaponState InState)
 		ShowPickupWidget(false);
 		
 		AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		EnableCustomDepth(false);
 		
 		WeaponMesh->SetSimulatePhysics(false);
 		WeaponMesh->SetEnableGravity(false);

@@ -99,12 +99,18 @@ protected:
 	
 	int32 GetAmountToReload();
 
-	void AttachActorToRightHand(AActor* ActorToAttach) const;
+	void AttachActorToSocket(AActor* ActorToAttach, const FName& SocketName) const;
 	void AttachActorToLeftHand(AActor* ActorToAttach) const;
 
 	void UpdateCarriedAmmo();
+
+	void DropEquippedWeapon();
+	void ReloadEmptyWeapon();
 	
 	void SetAttachedGrenadeVisibility(const bool bInVisibility) const;
+
+	void EquipPrimaryWeapon(AWeapon* WeaponToEquip);
+	void EquipSecondaryWeapon(AWeapon* WeaponToEquip);
 
 private:
 	UPROPERTY()
@@ -121,6 +127,12 @@ private:
 
 	UFUNCTION()
 	void OnRep_EquippedWeapon();
+
+	UPROPERTY(ReplicatedUsing = OnRep_SecondaryWeapon)
+	TObjectPtr<AWeapon> SecondaryWeapon;
+
+	UFUNCTION()
+	void OnRep_SecondaryWeapon();
 
 	UPROPERTY(ReplicatedUsing = OnRep_CombatState)
 	ECombatState CombatState = ECombatState::ECS_Unoccupied;

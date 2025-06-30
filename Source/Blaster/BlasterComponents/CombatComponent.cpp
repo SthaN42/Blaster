@@ -63,6 +63,7 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(UCombatComponent, EquippedWeapon);
+	DOREPLIFETIME(UCombatComponent, SecondaryWeapon);
 	DOREPLIFETIME(UCombatComponent, bAiming);
 	DOREPLIFETIME_CONDITION(UCombatComponent, CarriedAmmo, COND_OwnerOnly);
 	DOREPLIFETIME(UCombatComponent, CombatState);
@@ -73,28 +74,51 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 {
 	if (Character == nullptr || WeaponToEquip == nullptr) return;
 	if (CombatState != ECombatState::ECS_Unoccupied) return;
-
-	if (EquippedWeapon)
-	{
-		EquippedWeapon->Dropped();
-	}
-
-	EquippedWeapon = WeaponToEquip;
-	EquippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
-	EquippedWeapon->SetOwner(Character);
-	EquippedWeapon->SetHUDAmmo();
-
-	AttachActorToRightHand(EquippedWeapon);
 	
-	UpdateCarriedAmmo();
-
-	if (EquippedWeapon->IsEmpty())
+	if (EquippedWeapon != nullptr && SecondaryWeapon == nullptr)
 	{
-		Reload();
+		EquipSecondaryWeapon(WeaponToEquip);
+	}
+	else
+	{
+		EquipPrimaryWeapon(WeaponToEquip);
 	}
 	
 	Character->GetCharacterMovement()->bOrientRotationToMovement = false;
 	Character->bUseControllerRotationYaw = true;
+}
+
+void UCombatComponent::EquipPrimaryWeapon(AWeapon* WeaponToEquip)
+{
+	if (WeaponToEquip == nullptr) return;
+	
+	DropEquippedWeapon();
+	
+	EquippedWeapon = WeaponToEquip;
+	EquippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
+	EquippedWeapon->SetOwner(Character);
+	EquippedWeapon->SetHUDAmmo();
+	EquippedWeapon->EnableCustomDepth(false);
+
+	AttachActorToSocket(EquippedWeapon, FName("RightHandSocket"));
+	
+	UpdateCarriedAmmo();
+}
+
+void UCombatComponent::EquipSecondaryWeapon(AWeapon* WeaponToEquip)
+{
+	if (WeaponToEquip == nullptr) return;
+	
+	SecondaryWeapon = WeaponToEquip;
+	SecondaryWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
+	SecondaryWeapon->SetOwner(Character);
+	if (SecondaryWeapon->GetWeaponMesh())
+	{
+		SecondaryWeapon->GetWeaponMesh()->SetCustomDepthStencilValue(*EHighlightColor::Tan);
+		SecondaryWeapon->GetWeaponMesh()->MarkRenderStateDirty();
+	}
+	
+	AttachActorToSocket(WeaponToEquip, FName("BackpackSocket"));
 }
 
 void UCombatComponent::DropWeapon()
@@ -123,8 +147,9 @@ void UCombatComponent::OnRep_EquippedWeapon()
 	if (EquippedWeapon && Character)
 	{
 		EquippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
+		EquippedWeapon->EnableCustomDepth(false);
 
-		AttachActorToRightHand(EquippedWeapon);
+		AttachActorToSocket(EquippedWeapon, FName("RightHandSocket"));
 		
 		Character->GetCharacterMovement()->bOrientRotationToMovement = false;
 		Character->bUseControllerRotationYaw = true;
@@ -141,13 +166,28 @@ void UCombatComponent::OnRep_EquippedWeapon()
 	// }
 }
 
-void UCombatComponent::AttachActorToRightHand(AActor* ActorToAttach) const
+void UCombatComponent::OnRep_SecondaryWeapon()
+{
+	if (SecondaryWeapon && Character)
+	{
+		SecondaryWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
+		if (SecondaryWeapon->GetWeaponMesh())
+		{
+			SecondaryWeapon->GetWeaponMesh()->SetCustomDepthStencilValue(*EHighlightColor::Tan);
+			SecondaryWeapon->GetWeaponMesh()->MarkRenderStateDirty();
+		}
+
+		AttachActorToSocket(SecondaryWeapon, FName("BackpackSocket"));
+	}
+}
+
+void UCombatComponent::AttachActorToSocket(AActor* ActorToAttach, const FName& SocketName) const
 {
 	if (Character == nullptr || Character->GetMesh() == nullptr || ActorToAttach == nullptr) return;
 	
-	if (const USkeletalMeshSocket* HandSocket = Character->GetMesh()->GetSocketByName(FName("RightHandSocket")))
+	if (const USkeletalMeshSocket* Socket = Character->GetMesh()->GetSocketByName(SocketName))
 	{
-		HandSocket->AttachActor(ActorToAttach, Character->GetMesh());
+		Socket->AttachActor(ActorToAttach, Character->GetMesh());
 	}
 }
 
@@ -187,6 +227,23 @@ void UCombatComponent::UpdateCarriedAmmo()
 	}
 	
 	UpdateHUDAmmo();
+}
+
+void UCombatComponent::DropEquippedWeapon()
+{
+	if (EquippedWeapon)
+	{
+		EquippedWeapon->Dropped();
+		EquippedWeapon = nullptr;
+	}
+}
+
+void UCombatComponent::ReloadEmptyWeapon()
+{
+	if (EquippedWeapon && EquippedWeapon->IsEmpty())
+	{
+		Reload();
+	}
 }
 
 void UCombatComponent::ThrowGrenade()
@@ -247,7 +304,7 @@ void UCombatComponent::UpdateHUDGrenades()
 void UCombatComponent::ThrowGrenadeFinished()
 {
 	CombatState = ECombatState::ECS_Unoccupied;
-	AttachActorToRightHand(EquippedWeapon);
+	AttachActorToSocket(EquippedWeapon, FName("RightHandSocket"));
 }
 
 void UCombatComponent::LaunchGrenade() const
