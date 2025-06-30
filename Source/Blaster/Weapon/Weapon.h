@@ -106,6 +106,10 @@ public:
 	UPROPERTY(EditAnywhere, Category = "WeaponProperties|Sounds")
 	TObjectPtr<USoundBase> DroppedSound;
 
+	/* Other */
+
+	bool bDestroyWeapon = false;
+
 protected:
 	virtual void BeginPlay() override;
 

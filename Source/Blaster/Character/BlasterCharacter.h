@@ -65,8 +65,11 @@ public:
 	virtual void Jump() override;
 	void ToggleCrouch();
 
+	void SpawnDefaultWeapon() const;
+
 	void UpdateHUDHealth();
 	void UpdateHUDShield();
+	void UpdateHUDAmmo();
 
 	UPROPERTY()
 	ABlasterPlayerState* BlasterPlayerState;
@@ -293,4 +296,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UStaticMeshComponent> AttachedGrenade;
+
+	/* Default Weapon */
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
+	TSubclassOf<AWeapon> DefaultWeaponClass;
 };

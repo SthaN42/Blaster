@@ -108,8 +108,11 @@ void ABlasterCharacter::BeginPlay()
 		AttachedGrenade->SetVisibility(false);
 	}
 
+	SpawnDefaultWeapon();
+
 	UpdateHUDHealth();
 	UpdateHUDShield();
+	UpdateHUDAmmo();
 
 	if (HasAuthority())
 	{
@@ -303,6 +306,15 @@ void ABlasterCharacter::UpdateHUDShield()
 	if (GetBlasterPlayerController())
 	{
 		GetBlasterPlayerController()->SetHUDShield(Shield, MaxShield);
+	}
+}
+
+void ABlasterCharacter::UpdateHUDAmmo()
+{
+	if (GetBlasterPlayerController() && Combat && Combat->EquippedWeapon)
+	{
+		GetBlasterPlayerController()->SetHUDCarriedAmmo(Combat->CarriedAmmo);
+		GetBlasterPlayerController()->SetHUDWeaponAmmo(Combat->EquippedWeapon->GetAmmo());
 	}
 }
 
@@ -524,7 +536,14 @@ void ABlasterCharacter::Elim()
 {
 	if (Combat && Combat->EquippedWeapon)
 	{
-		Combat->EquippedWeapon->Dropped();
+		if (Combat->EquippedWeapon->bDestroyWeapon)
+		{
+			Combat->EquippedWeapon->Destroy();
+		}
+		else
+		{
+			Combat->EquippedWeapon->Dropped();
+		}
 		Combat->EquippedWeapon = nullptr;
 	}
 	
@@ -696,6 +715,20 @@ void ABlasterCharacter::ToggleCrouch()
 	else if (MoveComp->IsMovingOnGround())
 	{
 		Crouch();
+	}
+}
+
+void ABlasterCharacter::SpawnDefaultWeapon() const
+{
+	if (DefaultWeaponClass == nullptr) return;
+	
+	const ABlasterGameMode* BlasterGameMode = Cast<ABlasterGameMode>(UGameplayStatics::GetGameMode(this));
+	UWorld* World = GetWorld();
+	if (BlasterGameMode && World && !IsEliminated() && DefaultWeaponClass && Combat)
+	{
+		AWeapon* StartingWeapon = World->SpawnActor<AWeapon>(DefaultWeaponClass);
+		StartingWeapon->bDestroyWeapon = true;
+		Combat->EquipWeapon(StartingWeapon);
 	}
 }
 
