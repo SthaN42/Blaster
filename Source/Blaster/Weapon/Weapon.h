@@ -18,6 +18,7 @@ enum class EWeaponState : uint8
 {
 	EWS_Initial UMETA(DisplayName = "InitialState"),
 	EWS_Equipped UMETA(DisplayName = "Equipped"),
+	EWS_EquippedSecondary UMETA(DisplayName = "Equipped Secondary"),
 	EWS_Dropped UMETA(DisplayName = "Dropped"),
 	
 	EWS_MAX UMETA(DisplayName = "DefaultMax")
@@ -46,7 +47,7 @@ public:
 	void AddAmmo(const int32 AmmoToAdd);
 
 	/** Enable or disable custom depth */
-	void EnableCustomDepth(const bool bEnable) const;
+	void EnableCustomDepth(bool bEnable, EHighlightColor Color = EHighlightColor::None) const;
 
 	/* Getters / Setters */
 
@@ -113,6 +114,11 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	virtual void OnWeaponStateSet();
+	virtual void OnEquipped();
+	virtual void OnEquippedSecondary();
+	virtual void OnDropped();
+
 	UFUNCTION()
 	virtual void OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
@@ -171,6 +177,9 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "WeaponProperties")
 	EHighlightColor HighlightColor = EHighlightColor::Purple;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "WeaponProperties")
+	EHighlightColor BackpackHighlightColor = EHighlightColor::Tan;
 
 	UPROPERTY()
 	TObjectPtr<ABlasterCharacter> BlasterOwnerCharacter;

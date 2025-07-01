@@ -98,7 +98,6 @@ void UCombatComponent::EquipPrimaryWeapon(AWeapon* WeaponToEquip)
 	EquippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
 	EquippedWeapon->SetOwner(Character);
 	EquippedWeapon->SetHUDAmmo();
-	EquippedWeapon->EnableCustomDepth(false);
 
 	AttachActorToSocket(EquippedWeapon, FName("RightHandSocket"));
 	
@@ -110,36 +109,10 @@ void UCombatComponent::EquipSecondaryWeapon(AWeapon* WeaponToEquip)
 	if (WeaponToEquip == nullptr) return;
 	
 	SecondaryWeapon = WeaponToEquip;
-	SecondaryWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
+	SecondaryWeapon->SetWeaponState(EWeaponState::EWS_EquippedSecondary);
 	SecondaryWeapon->SetOwner(Character);
-	if (SecondaryWeapon->GetWeaponMesh())
-	{
-		SecondaryWeapon->GetWeaponMesh()->SetCustomDepthStencilValue(*EHighlightColor::Tan);
-		SecondaryWeapon->GetWeaponMesh()->MarkRenderStateDirty();
-	}
 	
 	AttachActorToSocket(WeaponToEquip, FName("BackpackSocket"));
-}
-
-void UCombatComponent::DropWeapon()
-{
-	// if (Character == nullptr || EquippedWeapon == nullptr) return;
-	//
-	// EquippedWeapon->Dropped();
-	//
-	// CarriedAmmo = 0;
-	//
-	// Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
-	// if (Controller)
-	// {
-	// 	Controller->SetHUDWeaponAmmo(0);
-	// 	Controller->SetHUDCarriedAmmo(0);
-	// }
-	//
-	// EquippedWeapon = nullptr;
-	//
-	// Character->GetCharacterMovement()->bOrientRotationToMovement = true;
-	// Character->bUseControllerRotationYaw = false;
 }
 
 void UCombatComponent::OnRep_EquippedWeapon()
@@ -147,7 +120,7 @@ void UCombatComponent::OnRep_EquippedWeapon()
 	if (EquippedWeapon && Character)
 	{
 		EquippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
-		EquippedWeapon->EnableCustomDepth(false);
+		EquippedWeapon->SetHUDAmmo();
 
 		AttachActorToSocket(EquippedWeapon, FName("RightHandSocket"));
 		
@@ -170,17 +143,48 @@ void UCombatComponent::OnRep_SecondaryWeapon()
 {
 	if (SecondaryWeapon && Character)
 	{
-		SecondaryWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
-		if (SecondaryWeapon->GetWeaponMesh())
-		{
-			SecondaryWeapon->GetWeaponMesh()->SetCustomDepthStencilValue(*EHighlightColor::Tan);
-			SecondaryWeapon->GetWeaponMesh()->MarkRenderStateDirty();
-		}
+		SecondaryWeapon->SetWeaponState(EWeaponState::EWS_EquippedSecondary);
 
 		AttachActorToSocket(SecondaryWeapon, FName("BackpackSocket"));
 	}
 }
 
+void UCombatComponent::SwapWeapons()
+{
+	AWeapon* TempWeapon = EquippedWeapon;
+	EquippedWeapon = SecondaryWeapon;
+	SecondaryWeapon = TempWeapon;
+
+	EquippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
+	EquippedWeapon->SetHUDAmmo();
+	UpdateCarriedAmmo();
+	AttachActorToSocket(EquippedWeapon, FName("RightHandSocket"));
+	ReloadEmptyWeapon();
+
+	SecondaryWeapon->SetWeaponState(EWeaponState::EWS_EquippedSecondary);
+	AttachActorToSocket(SecondaryWeapon, FName("BackpackSocket"));
+}
+
+void UCombatComponent::DropWeapon()
+{
+	// if (Character == nullptr || EquippedWeapon == nullptr) return;
+	//
+	// EquippedWeapon->Dropped();
+	//
+	// CarriedAmmo = 0;
+	//
+	// Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
+	// if (Controller)
+	// {
+	// 	Controller->SetHUDWeaponAmmo(0);
+	// 	Controller->SetHUDCarriedAmmo(0);
+	// }
+	//
+	// EquippedWeapon = nullptr;
+	//
+	// Character->GetCharacterMovement()->bOrientRotationToMovement = true;
+	// Character->bUseControllerRotationYaw = false;
+}
 void UCombatComponent::AttachActorToSocket(AActor* ActorToAttach, const FName& SocketName) const
 {
 	if (Character == nullptr || Character->GetMesh() == nullptr || ActorToAttach == nullptr) return;
@@ -522,6 +526,11 @@ void UCombatComponent::SetSpeeds(float InBaseWalkSpeed, float InAimWalkSpeed, fl
 
 	Character->GetCharacterMovement()->MaxWalkSpeed = bAiming ? AimWalkSpeed : BaseWalkSpeed;
 	Character->GetCharacterMovement()->MaxWalkSpeedCrouched = InCrouchSpeed;
+}
+
+bool UCombatComponent::ShouldSwapWeapons() const
+{
+	return EquippedWeapon != nullptr && SecondaryWeapon != nullptr && !bAiming && CombatState == ECombatState::ECS_Unoccupied;
 }
 
 void UCombatComponent::FireButtonPressed(const bool bPressed)

@@ -32,6 +32,8 @@ public:
 
 	void EquipWeapon(AWeapon* WeaponToEquip);
 
+	void SwapWeapons();
+
 	void DropWeapon();
 
 	void ThrowGrenade();
@@ -67,6 +69,8 @@ public:
 	FORCEINLINE int32 GetStartingGrenades() const { return StartingGrenades; }
 
 	void SetSpeeds(float InBaseWalkSpeed, float InAimWalkSpeed, float InCrouchSpeed);
+
+	bool ShouldSwapWeapons() const;
 	
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Grenades")

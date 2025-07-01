@@ -26,7 +26,7 @@ AWeapon::AWeapon()
 	WeaponMesh->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	EnableCustomDepth(true);
+	EnableCustomDepth(true, HighlightColor);
 
 	AreaSphere = CreateDefaultSubobject<USphereComponent>("AreaSphere");
 	AreaSphere->SetupAttachment(RootComponent);
@@ -97,13 +97,13 @@ void AWeapon::AddAmmo(const int32 AmmoToAdd)
 	SetHUDAmmo();
 }
 
-void AWeapon::EnableCustomDepth(const bool bEnable) const
+void AWeapon::EnableCustomDepth(bool bEnable, EHighlightColor Color) const
 {
 	if (WeaponMesh)
 	{
 		if (bEnable)
 		{
-			WeaponMesh->SetCustomDepthStencilValue(*HighlightColor);
+			WeaponMesh->SetCustomDepthStencilValue(*Color);
 			WeaponMesh->MarkRenderStateDirty();
 		}
 		WeaponMesh->SetRenderCustomDepth(bEnable);
@@ -114,54 +114,28 @@ void AWeapon::SetWeaponState(const EWeaponState InState)
 {
 	WeaponState = InState;
 
+	OnWeaponStateSet();
+}
+
+void AWeapon::OnRep_WeaponState()
+{
+	OnWeaponStateSet();
+}
+
+void AWeapon::OnWeaponStateSet()
+{
 	switch (WeaponState)
 	{
 	case EWeaponState::EWS_Equipped:
-		SetReplicateMovement(false);
-		
-		ShowPickupWidget(false);
-		
-		AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		
-		WeaponMesh->SetSimulatePhysics(false);
-		WeaponMesh->SetEnableGravity(false);
-		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		OnEquipped();
+		break;
 
-		// Enable the SMG strap to dangle
-		//TODO: make this a parameter in the Weapon class, instead of hard coding this.
-		if (WeaponType == EWeaponType::EWT_SubmachineGun)
-		{
-			WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-			WeaponMesh->SetEnableGravity(true);
-			WeaponMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
-		}
-		
-		if (EquipSound)
-		{
-			UGameplayStatics::PlaySoundAtLocation(this, EquipSound, GetActorLocation());
-		}
+	case EWeaponState::EWS_EquippedSecondary:
+		OnEquippedSecondary();
 		break;
 		
 	case EWeaponState::EWS_Dropped:
-		SetReplicateMovement(true);
-		
-		if (HasAuthority())
-		{
-			AreaSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-		}
-		EnableCustomDepth(true);
-		
-		WeaponMesh->SetSimulatePhysics(true);
-		WeaponMesh->SetEnableGravity(true);
-		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		WeaponMesh->SetCollisionResponseToAllChannels(ECR_Block);
-		WeaponMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
-		WeaponMesh->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
-		
-		if (DroppedSound)
-		{
-			UGameplayStatics::PlaySoundAtLocation(this, DroppedSound, GetActorLocation());
-		}
+		OnDropped();
 		break;
 
 	default:
@@ -169,55 +143,88 @@ void AWeapon::SetWeaponState(const EWeaponState InState)
 	}
 }
 
-void AWeapon::OnRep_WeaponState()
+void AWeapon::OnEquipped()
 {
-	switch (WeaponState)
+	SetReplicateMovement(false);
+	
+	ShowPickupWidget(false);
+	EnableCustomDepth(false);
+	
+	if (HasAuthority())
 	{
-	case EWeaponState::EWS_Equipped:
-		SetReplicateMovement(false);
-		
-		ShowPickupWidget(false);
-		EnableCustomDepth(false);
+		AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+	
+	WeaponMesh->SetSimulatePhysics(false);
+	WeaponMesh->SetEnableGravity(false);
+	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-		WeaponMesh->SetSimulatePhysics(false);
-		WeaponMesh->SetEnableGravity(false);
-		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-		// Enable the SMG strap to dangle
-		//TODO: make this a parameter in the Weapon class, instead of hard coding this.
-		if (WeaponType == EWeaponType::EWT_SubmachineGun)
-		{
-			WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-			WeaponMesh->SetEnableGravity(true);
-			WeaponMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
-		}
-
-		if (EquipSound)
-		{
-			UGameplayStatics::PlaySoundAtLocation(this, EquipSound, GetActorLocation());
-		}
-		break;
-		
-	case EWeaponState::EWS_Dropped:
-		SetReplicateMovement(true);
-
-		EnableCustomDepth(true);
-		
-		WeaponMesh->SetSimulatePhysics(true);
-		WeaponMesh->SetEnableGravity(true);
+	// Enable the SMG strap to dangle
+	//TODO: make this a parameter in the Weapon class, instead of hard coding this.
+	if (WeaponType == EWeaponType::EWT_SubmachineGun)
+	{
 		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		WeaponMesh->SetCollisionResponseToAllChannels(ECR_Block);
-		WeaponMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
-		WeaponMesh->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+		WeaponMesh->SetEnableGravity(true);
+		WeaponMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
+	}
+	
+	if (EquipSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, EquipSound, GetActorLocation());
+	}
+}
 
-		if (DroppedSound)
-		{
-			UGameplayStatics::PlaySoundAtLocation(this, DroppedSound, GetActorLocation());
-		}
-		break;
+void AWeapon::OnEquippedSecondary()
+{
+	SetReplicateMovement(false);
 
-	default:
-		break;
+	ShowPickupWidget(false);
+	EnableCustomDepth(true, BackpackHighlightColor);
+	
+	if (HasAuthority())
+	{
+		AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+	
+	WeaponMesh->SetSimulatePhysics(false);
+	WeaponMesh->SetEnableGravity(false);
+	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	// Enable the SMG strap to dangle
+	//TODO: make this a parameter in the Weapon class, instead of hard coding this.
+	if (WeaponType == EWeaponType::EWT_SubmachineGun)
+	{
+		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		WeaponMesh->SetEnableGravity(true);
+		WeaponMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
+	}
+	
+	if (EquipSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, EquipSound, GetActorLocation());
+	}
+}
+
+void AWeapon::OnDropped()
+{
+	SetReplicateMovement(true);
+		
+	if (HasAuthority())
+	{
+		AreaSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	}
+	EnableCustomDepth(true, HighlightColor);
+	
+	WeaponMesh->SetSimulatePhysics(true);
+	WeaponMesh->SetEnableGravity(true);
+	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	WeaponMesh->SetCollisionResponseToAllChannels(ECR_Block);
+	WeaponMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+	WeaponMesh->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	
+	if (DroppedSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, DroppedSound, GetActorLocation());
 	}
 }
 
@@ -280,7 +287,7 @@ void AWeapon::BeginPlay()
 		AreaSphere->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnSphereOverlap);
 		AreaSphere->OnComponentEndOverlap.AddDynamic(this, &ThisClass::OnSphereEnOverlap);
 
-		EnableCustomDepth(true);
+		EnableCustomDepth(true, HighlightColor);
 	}
 	if (PickupWidget)
 	{
