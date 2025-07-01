@@ -152,6 +152,8 @@ protected:
 
 	void RotateInPlace(float DeltaSeconds);
 
+	void DropOrDestroyWeapon(AWeapon* Weapon);
+
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
 	TObjectPtr<USpringArmComponent> CameraBoom;
