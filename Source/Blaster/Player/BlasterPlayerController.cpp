@@ -51,6 +51,8 @@ void ABlasterPlayerController::Tick(float DeltaSeconds)
 	CheckTimeSync(DeltaSeconds);
 
 	PollInit();
+
+	CheckPing(DeltaSeconds);
 }
 
 void ABlasterPlayerController::CheckTimeSync(const float DeltaTime)
@@ -259,6 +261,23 @@ void ABlasterPlayerController::PollInit()
 				}
 			}
 		}
+	}
+}
+
+void ABlasterPlayerController::CheckPing(float DeltaSeconds)
+{
+	HighPingRunningTime += DeltaSeconds;
+	if (HighPingRunningTime > CheckPingFrequency)
+	{
+		if (!PlayerState) PlayerState = GetPlayerState<APlayerState>();
+		if (PlayerState)
+		{
+			if (PlayerState->GetPingInMilliseconds() > HighPingThreshold)
+			{
+				ShowHighPingWarning();
+			}
+		}
+		HighPingRunningTime = 0.f;
 	}
 }
 
@@ -586,4 +605,13 @@ void ABlasterPlayerController::ClientJoinMidGame_Implementation(const FName Stat
 	CooldownTime = Cooldown;
 	MatchState = StateOfMatch;
 	OnMatchStateSet(MatchState);
+}
+
+void ABlasterPlayerController::ShowHighPingWarning()
+{
+	BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
+	if (BlasterHUD && BlasterHUD->CharacterOverlay)
+	{
+		BlasterHUD->CharacterOverlay->ShowHighPingWarning();
+	}
 }

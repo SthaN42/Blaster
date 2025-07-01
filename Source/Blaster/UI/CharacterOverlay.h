@@ -46,4 +46,7 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget, BlueprintProtected = true))
 	UTextBlock* GrenadesText;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void ShowHighPingWarning();
 };

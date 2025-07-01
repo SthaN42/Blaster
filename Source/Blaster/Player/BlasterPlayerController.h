@@ -58,6 +58,8 @@ protected:
 
 	void PollInit();
 
+	void CheckPing(float DeltaSeconds);
+
 	/* Sync time between client and sever */
 
 	// Requests the current sever time, passing in the client's time when the request was sent
@@ -109,6 +111,8 @@ protected:
 	UFUNCTION(Client, Reliable)
 	void ClientJoinMidGame(const FName StateOfMatch, const float StartingTime, const float Warmup, const float Match, const float Cooldown);
 
+	void ShowHighPingWarning();
+
 private:
 	UPROPERTY(EditDefaultsOnly, Category = Input)
 	TObjectPtr<UBlasterInputConfig> InputConfig;
@@ -131,6 +135,8 @@ private:
 	UFUNCTION()
 	void OnRep_MatchState();
 
+	/* Overlay */
+	
 	UPROPERTY()
 	UCharacterOverlay* CharacterOverlay;
 
@@ -156,4 +162,14 @@ private:
 	
 	int32 HUDDefeats;
 	bool bInitializeDefeats = false;
+
+	/* Ping */
+
+	float HighPingRunningTime = 0.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Ping")
+	float CheckPingFrequency = 20.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Ping")
+	float HighPingThreshold = 50.f;
 };
