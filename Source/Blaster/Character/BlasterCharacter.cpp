@@ -108,12 +108,6 @@ void ABlasterCharacter::BeginPlay()
 		AttachedGrenade->SetVisibility(false);
 	}
 
-	SpawnDefaultWeapon();
-
-	UpdateHUDHealth();
-	UpdateHUDShield();
-	UpdateHUDAmmo();
-
 	if (HasAuthority())
 	{
 		OnTakeAnyDamage.AddDynamic(this, &ThisClass::ReceiveDamage);
@@ -524,6 +518,16 @@ void ABlasterCharacter::PollInit()
 		{
 			BlasterPlayerState->AddToScore(0);
 			BlasterPlayerState->AddToDefeats(0);
+		}
+	}
+	if (BlasterPlayerController == nullptr)
+	{
+		if (GetBlasterPlayerController())
+		{
+			SpawnDefaultWeapon();
+			UpdateHUDAmmo();
+			UpdateHUDHealth();
+			UpdateHUDShield();
 		}
 	}
 }
