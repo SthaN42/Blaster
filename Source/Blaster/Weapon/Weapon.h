@@ -24,6 +24,16 @@ enum class EWeaponState : uint8
 	EWS_MAX UMETA(DisplayName = "DefaultMax")
 };
 
+UENUM(BlueprintType)
+enum class EFireType : uint8
+{
+	EFT_Projectile UMETA(DisplayName = "Projectile Weapon"),
+	EFT_HitScan UMETA(DisplayName = "Hit Scan Weapon"),
+	EFT_Shotgun UMETA(DisplayName = "Shotgun Weapon"),
+
+	EFT_MAX UMETA(DisplayName = "DefaultMax")
+};
+
 UCLASS()
 class BLASTER_API AWeapon : public AActor
 {
@@ -45,6 +55,8 @@ public:
 	void Dropped();
 
 	void AddAmmo(const int32 AmmoToAdd);
+
+	FVector TraceEndWithScatter(const FVector& HitTarget) const;
 
 	/** Enable or disable custom depth */
 	void EnableCustomDepth(bool bEnable, EHighlightColor Color = EHighlightColor::None) const;
@@ -107,9 +119,23 @@ public:
 	UPROPERTY(EditAnywhere, Category = "WeaponProperties|Sounds")
 	TObjectPtr<USoundBase> DroppedSound;
 
+	/* Scatter */
+
+	UPROPERTY(EditDefaultsOnly, Category = "WeaponProperties|Scatter", meta = (EditCondition = "FireType != EFireType::EFT_Projectile", EditConditionHides))
+	bool bUseScatter = false;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "WeaponProperties|Scatter", meta = (EditCondition = "FireType != EFireType::EFT_Projectile && bUseScatter", EditConditionHides))
+	float DistanceToSphere = 800.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "WeaponProperties|Scatter", meta = (EditCondition = "FireType != EFireType::EFT_Projectile && bUseScatter", EditConditionHides))
+	float SphereRadius = 75.f;
+
 	/* Other */
 
 	bool bDestroyWeapon = false;
+
+	UPROPERTY(EditDefaultsOnly, Category = "WeaponProperties")
+	EFireType FireType = EFireType::EFT_Projectile;
 
 protected:
 	virtual void BeginPlay() override;

@@ -6,9 +6,7 @@
 #include "Blaster/Character/BlasterCharacter.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetMathLibrary.h"
 #include "Particles/ParticleSystemComponent.h"
-#include "WeaponTypes.h"
 
 void AHitScanWeapon::Fire(const FVector& HitTarget)
 {
@@ -48,7 +46,7 @@ void AHitScanWeapon::WeaponTraceHit(const FVector& TraceStart, const FVector& Hi
 {
 	if (const UWorld* World = GetWorld())
 	{
-		const FVector TraceEnd = bUseScatter ? TraceEndWithScatter(TraceStart, HitTarget) : TraceStart + (HitTarget - TraceStart) * 1.25f;
+		const FVector TraceEnd = TraceStart + (HitTarget - TraceStart) * 1.25f;
 		FVector BeamEnd = TraceEnd;
 		
 		World->LineTraceSingleByChannel(OutHit, TraceStart, TraceEnd, ECC_Visibility);
@@ -56,6 +54,7 @@ void AHitScanWeapon::WeaponTraceHit(const FVector& TraceStart, const FVector& Hi
 		{
 			BeamEnd = OutHit.ImpactPoint;
 		}
+		DrawDebugSphere(GetWorld(), BeamEnd, 16, 12, FColor::Orange, true);
 		if (BeamParticles)
 		{
 			if (UParticleSystemComponent* Beam = UGameplayStatics::SpawnEmitterAtLocation(World, BeamParticles, TraceStart, FRotator::ZeroRotator))
@@ -64,22 +63,4 @@ void AHitScanWeapon::WeaponTraceHit(const FVector& TraceStart, const FVector& Hi
 			}
 		}
 	}
-}
-
-// TODO: Make this take the actual inaccuracy of the player (like jumping around, full spraying, etc.)
-// Can be made by creating the Inaccuracy value in the CombatComponent, then getting it through Fire(), and using it to control the sphere radius.
-// This value could be either a constant, or a Weapon-based curve.
-FVector AHitScanWeapon::TraceEndWithScatter(const FVector& TraceStart, const FVector& HitTarget) const
-{
-	const FVector ToTargetNormalized = (HitTarget - TraceStart).GetSafeNormal();
-	const FVector SphereCenter = TraceStart + ToTargetNormalized * DistanceToSphere;
-	const FVector RandVec = UKismetMathLibrary::RandomUnitVector() * FMath::FRandRange(0.f, SphereRadius);
-	const FVector EndLoc = SphereCenter + RandVec;
-	const FVector ToEndLoc = EndLoc - TraceStart;
-	
-	// DrawDebugSphere(GetWorld(), SphereCenter, SphereRadius, 12, FColor::Red, true);
-	// DrawDebugPoint(GetWorld(), EndLoc, 8, FColor::Orange, true);
-	// DrawDebugLine(GetWorld(), TraceStart, FVector(TraceStart + ToEndLoc * TRACE_LENGTH / ToEndLoc.Size()), FColor::Cyan, true);
-
-	return FVector(TraceStart + ToEndLoc * TRACE_LENGTH / ToEndLoc.Size());
 }

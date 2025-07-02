@@ -548,17 +548,53 @@ void UCombatComponent::Fire()
 	if (CanFire())
 	{
 		bCanFire = false;
-		
-		ServerFire(HitTarget);
-		LocalFire(HitTarget);
 
 		if (EquippedWeapon)
 		{
 			CrosshairShootingFactor = FMath::Min(CrosshairShootingFactor + 0.35f, 1.f);
+
+			switch (EquippedWeapon->FireType)
+			{
+			case EFireType::EFT_Projectile:
+				FireProjectileWeapon();
+				break;
+				
+			case EFireType::EFT_HitScan:
+				FireHitScanWeapon();
+				break;
+				
+			case EFireType::EFT_Shotgun:
+				FireShotgunWeapon();
+				break;
+				
+			default:
+				break;
+			}
 		}
 
 		StartFireTimer();
 	}
+}
+
+void UCombatComponent::FireProjectileWeapon()
+{
+	LocalFire(HitTarget);
+	ServerFire(HitTarget);
+}
+
+void UCombatComponent::FireHitScanWeapon()
+{
+	if (EquippedWeapon)
+	{
+		HitTarget = EquippedWeapon->bUseScatter ? EquippedWeapon->TraceEndWithScatter(HitTarget) : HitTarget;
+
+		LocalFire(HitTarget);
+		ServerFire(HitTarget);
+	}
+}
+
+void UCombatComponent::FireShotgunWeapon()
+{
 }
 
 void UCombatComponent::ServerFire_Implementation(const FVector_NetQuantize& TraceHitTarget)
