@@ -8,10 +8,11 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 
-void AShotgun::Fire(const FVector& HitTarget)
+void AShotgun::FireShotgun(const TArray<FVector_NetQuantize>& HitTargets)
 {
-	AWeapon::Fire(HitTarget);
-	
+	// AWeapon::Fire() doesn't use the HitTarget, so we can pass in an empty FVector
+	AWeapon::Fire(FVector());
+
 	APawn* OwnerPawn = Cast<APawn>(GetOwner());
 	if (!OwnerPawn) return;
 	
@@ -19,17 +20,17 @@ void AShotgun::Fire(const FVector& HitTarget)
 
 	if (const USkeletalMeshSocket* SpawnSocket = GetWeaponMesh()->GetSocketByName("MuzzleFlash"))
 	{
-		FTransform SocketTransform = SpawnSocket->GetSocketTransform(GetWeaponMesh());
-		FVector Start = SocketTransform.GetLocation();
+		const FTransform SocketTransform = SpawnSocket->GetSocketTransform(GetWeaponMesh());
+		const FVector Start = SocketTransform.GetLocation();
 
+		// Maps hit characters to the number of times hit
 		TMap<ABlasterCharacter*, uint32> HitMap;
-		for (uint32 i = 0; i < NumberOfPellets; i++)
+		for (FVector_NetQuantize HitTarget : HitTargets)
 		{
 			FHitResult FireHit;
 			WeaponTraceHit(Start, HitTarget, FireHit);
 
-			ABlasterCharacter* BlasterCharacter = Cast<ABlasterCharacter>(FireHit.GetActor());
-			if (BlasterCharacter && HasAuthority() && InstigatorController)
+			if (ABlasterCharacter* BlasterCharacter = Cast<ABlasterCharacter>(FireHit.GetActor()))
 			{
 				if (HitMap.Contains(BlasterCharacter))
 				{
@@ -50,6 +51,7 @@ void AShotgun::Fire(const FVector& HitTarget)
 				UGameplayStatics::PlaySoundAtLocation(this, HitSound, FireHit.ImpactPoint, .5f, FMath::FRandRange(.8f, 1.2f));
 			}
 		}
+		
 		for (auto HitPair : HitMap)
 		{
 			if (HitPair.Key && HasAuthority() && InstigatorController)
@@ -63,7 +65,7 @@ void AShotgun::Fire(const FVector& HitTarget)
 // TODO: Make this take the actual inaccuracy of the player (like jumping around, full spraying, etc.)
 // Can be made by creating the Inaccuracy value in the CombatComponent, then getting it through Fire(), and using it to control the sphere radius.
 // This value could be either a constant, or a Weapon-based curve.
-void AShotgun::ShotgunTraceEndWithScatter(const FVector& HitTarget, TArray<FVector>& OutHits) const
+void AShotgun::ShotgunTraceEndWithScatter(const FVector& HitTarget, TArray<FVector_NetQuantize>& OutHits) const
 {
 	const USkeletalMeshSocket* MuzzleFlashSocket = GetWeaponMesh()->GetSocketByName("MuzzleFlash");
 	if (MuzzleFlashSocket == nullptr) return;
