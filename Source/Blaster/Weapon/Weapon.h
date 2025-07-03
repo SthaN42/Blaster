@@ -121,14 +121,8 @@ public:
 
 	/* Scatter */
 
-	UPROPERTY(EditDefaultsOnly, Category = "WeaponProperties|Scatter", meta = (EditCondition = "FireType != EFireType::EFT_Projectile", EditConditionHides))
+	UPROPERTY(EditDefaultsOnly, Category = "WeaponProperties|Scatter")
 	bool bUseScatter = false;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "WeaponProperties|Scatter", meta = (EditCondition = "FireType != EFireType::EFT_Projectile && bUseScatter", EditConditionHides))
-	float DistanceToSphere = 800.f;
-
-	UPROPERTY(EditDefaultsOnly, Category = "WeaponProperties|Scatter", meta = (EditCondition = "FireType != EFireType::EFT_Projectile && bUseScatter", EditConditionHides))
-	float SphereRadius = 75.f;
 
 	/* Other */
 
@@ -154,6 +148,14 @@ protected:
 	ABlasterCharacter* GetOwnerCharacter();
 
 	ABlasterPlayerController* GetOwnerController();
+
+	/* Scatter */
+
+	UPROPERTY(EditDefaultsOnly, Category = "WeaponProperties|Scatter", meta = (EditCondition = "bUseScatter"))
+	float DistanceToSphere = 800.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "WeaponProperties|Scatter", meta = (EditCondition = "bUseScatter"))
+	float SphereRadius = 75.f;
 
 private:
 	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_WeaponState, Category = "WeaponProperties", AdvancedDisplay)
