@@ -89,6 +89,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	bool IsAiming() const;
+
+	UFUNCTION(BlueprintCallable)
+	bool IsLocallyReloading() const;
 	
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE float GetAO_Yaw() const { return AO_Yaw; }

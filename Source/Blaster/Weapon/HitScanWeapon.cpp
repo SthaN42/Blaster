@@ -8,6 +8,16 @@
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystemComponent.h"
 
+namespace WeaponCVars
+{
+	static bool ShowDebugHits = false;
+	static FAutoConsoleVariableRef CVarShowDebugHits(
+		TEXT("Weapon.ShowDebugHits"),
+		ShowDebugHits,
+		TEXT("When true, firing weapons will leave spheres indicating hit locations."),
+		ECVF_Default | ECVF_Cheat);
+}
+
 void AHitScanWeapon::Fire(const FVector& HitTarget)
 {
 	Super::Fire(HitTarget);
@@ -54,7 +64,6 @@ void AHitScanWeapon::WeaponTraceHit(const FVector& TraceStart, const FVector& Hi
 		{
 			BeamEnd = OutHit.ImpactPoint;
 		}
-		DrawDebugSphere(GetWorld(), BeamEnd, 16, 12, FColor::Orange, true);
 		if (BeamParticles)
 		{
 			if (UParticleSystemComponent* Beam = UGameplayStatics::SpawnEmitterAtLocation(World, BeamParticles, TraceStart, FRotator::ZeroRotator))
@@ -62,5 +71,7 @@ void AHitScanWeapon::WeaponTraceHit(const FVector& TraceStart, const FVector& Hi
 				Beam->SetVectorParameter("Target", BeamEnd);
 			}
 		}
+
+		if (WeaponCVars::ShowDebugHits) DrawDebugSphere(GetWorld(), BeamEnd, 12, 12, FColor::Orange, true);
 	}
 }

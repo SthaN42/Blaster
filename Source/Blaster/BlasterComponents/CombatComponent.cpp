@@ -351,12 +351,13 @@ void UCombatComponent::SetAttachedGrenadeVisibility(const bool bInVisibility) co
 void UCombatComponent::Reload()
 {
 	if (Character == nullptr || EquippedWeapon == nullptr) return;
-
 	if (EquippedWeapon->IsFull()) return;
 	
-	if (CarriedAmmo > 0 && CombatState == ECombatState::ECS_Unoccupied)
+	if (CarriedAmmo > 0 && CombatState == ECombatState::ECS_Unoccupied && !bLocallyReloading)
 	{
 		ServerReload();
+		HandleReload();
+		bLocallyReloading = true;
 	}
 }
 
@@ -365,13 +366,16 @@ void UCombatComponent::ServerReload_Implementation()
 	if (Character == nullptr || EquippedWeapon == nullptr) return;
 
 	CombatState = ECombatState::ECS_Reloading;
-	HandleReload();
+	if (!Character->IsLocallyControlled()) HandleReload();
 }
 
 void UCombatComponent::HandleReload()
 {
-	Character->PlayReloadMontage();
-	SetAiming(false);
+	if (Character)
+	{
+		Character->PlayReloadMontage();
+		SetAiming(false);
+	}
 }
 
 int32 UCombatComponent::GetAmountToReload()
@@ -389,6 +393,10 @@ int32 UCombatComponent::GetAmountToReload()
 void UCombatComponent::FinishReload()
 {
 	if (Character == nullptr) return;
+
+	bLocallyReloading = false;
+
+	//TODO: Sometimes (seemingly with packet loss), this isn't called on the server, which causes the client to get stuck in the Reloading State
 	if (Character->HasAuthority())
 	{
 		CombatState = ECombatState::ECS_Unoccupied;
@@ -462,9 +470,11 @@ void UCombatComponent::OnRep_CombatState()
 			Fire();
 		}
 		break;
+		
 	case ECombatState::ECS_Reloading:
-		HandleReload();
+		if (Character && !Character->IsLocallyControlled()) HandleReload();
 		break;
+		
 	case ECombatState::ECS_ThrowingGrenade:
 		if (Character && !Character->IsLocallyControlled())
 		{
@@ -473,6 +483,7 @@ void UCombatComponent::OnRep_CombatState()
 			SetAttachedGrenadeVisibility(true);
 		}
 		break;
+		
 	default:
 		break;
 	}
@@ -670,6 +681,7 @@ void UCombatComponent::LocalShotgunFire(const TArray<FVector_NetQuantize>& Trace
 		Character->PlayFireMontage(bAiming);
 		Shotgun->FireShotgun(TraceHitTargets);
 		CombatState = ECombatState::ECS_Unoccupied;
+		bLocallyReloading = false;
 	}
 }
 
@@ -815,6 +827,8 @@ bool UCombatComponent::CanFire() const
 
 	// Allow interrupting reload with the shotgun
 	if (!EquippedWeapon->IsEmpty() && bCanFire && CombatState == ECombatState::ECS_Reloading && EquippedWeapon->GetWeaponType() == EWeaponType::EWT_Shotgun) return true;
+
+	if (bLocallyReloading) return false;
 
 	return !EquippedWeapon->IsEmpty() && bCanFire && CombatState == ECombatState::ECS_Unoccupied;
 }

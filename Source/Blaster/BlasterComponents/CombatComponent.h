@@ -71,6 +71,8 @@ public:
 	void SetSpeeds(float InBaseWalkSpeed, float InAimWalkSpeed, float InCrouchSpeed);
 
 	bool ShouldSwapWeapons() const;
+
+	bool bLocallyReloading = false;
 	
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Grenades")

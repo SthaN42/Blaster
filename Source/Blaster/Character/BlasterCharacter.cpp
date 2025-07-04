@@ -800,3 +800,8 @@ bool ABlasterCharacter::IsAiming() const
 {
 	return Combat && Combat->bAiming;
 }
+
+bool ABlasterCharacter::IsLocallyReloading() const
+{
+	return Combat && Combat->bLocallyReloading;
+}
