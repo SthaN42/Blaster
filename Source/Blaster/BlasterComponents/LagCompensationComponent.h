@@ -53,10 +53,14 @@ public:
 	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	void ShowFramePackage(const FFramePackage& Package, const FColor& Color, bool bPersistent = false);
+
 protected:
 	virtual void BeginPlay() override;
 
 	void ConstructInitialCapsuleInfo();
+
+	void SaveFramePackage(FFramePackage& Package);
 
 private:
 	UPROPERTY()
@@ -65,6 +69,9 @@ private:
 	UPROPERTY()
 	TObjectPtr<ABlasterPlayerController> Controller;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Lag Compensation|Server-Side Rewind")
+	float MaxRecordTime = 2.f;
+	
 	UPROPERTY()
 	TArray<FCapsuleInfo> InitialCapsuleInfo;
 };
