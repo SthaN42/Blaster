@@ -72,6 +72,6 @@ void AHitScanWeapon::WeaponTraceHit(const FVector& TraceStart, const FVector& Hi
 			}
 		}
 
-		if (WeaponCVars::ShowDebugHits) DrawDebugSphere(GetWorld(), BeamEnd, 12, 12, FColor::Orange, true);
+		if (WeaponCVars::ShowDebugHits) DrawDebugSphere(GetWorld(), BeamEnd, 12, 12, FColor::Orange, false, 10.f);
 	}
 }

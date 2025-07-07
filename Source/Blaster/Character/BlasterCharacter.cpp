@@ -19,6 +19,7 @@
 #include "Net/UnrealNetwork.h"
 #include "NiagaraComponent.h"
 #include "Blaster/BlasterComponents/BuffComponent.h"
+#include "Blaster/BlasterComponents/LagCompensationComponent.h"
 #include "Blaster/Player/BlasterPlayerState.h"
 #include "Blaster/Weapon/WeaponTypes.h"
 #include "Kismet/GameplayStatics.h"
@@ -59,6 +60,8 @@ ABlasterCharacter::ABlasterCharacter()
 
 	Buff = CreateDefaultSubobject<UBuffComponent>(TEXT("BuffComponent"));
 	Buff->SetIsReplicated(true);
+
+	LagCompensation = CreateDefaultSubobject<ULagCompensationComponent>(TEXT("LagCompensationComponent"));
 
 	TurningInPlace = ETurningInPlace::ETIP_NotTurning;
 
@@ -390,6 +393,14 @@ void ABlasterCharacter::PostInitializeComponents()
 			Buff->Character = this;
 			Buff->SetInitialSpeeds(Combat->BaseWalkSpeed, Combat->AimWalkSpeed, GetCharacterMovement()->MaxWalkSpeedCrouched);
 			Buff->SetInitialJumpVelocity(GetCharacterMovement()->JumpZVelocity);
+		}
+	}
+	if (LagCompensation)
+	{
+		LagCompensation->Character = this;
+		if (GetBlasterPlayerController())
+		{
+			LagCompensation->Controller = GetBlasterPlayerController();
 		}
 	}
 }

@@ -8,6 +8,7 @@
 #include "Components/TimelineComponent.h"
 #include "BlasterCharacter.generated.h"
 
+class ULagCompensationComponent;
 class UBuffComponent;
 class ABlasterPlayerController;
 class ABlasterPlayerState;
@@ -176,11 +177,16 @@ private:
 	UFUNCTION()
 	void OnRep_OverlappingWeapon(AWeapon* LastWeapon);
 
+	/* Blaster Components */
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, BlueprintGetter = "GetCombat", Category = "Combat", meta = (AllowPrivateAccess = true))
 	TObjectPtr<UCombatComponent> Combat;
 
-	UPROPERTY(visibleAnywhere, BlueprintReadOnly, BlueprintGetter = "GetBuff", Category = "Buff", meta = (AllowPrivateAccess = true))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, BlueprintGetter = "GetBuff", Category = "Buff", meta = (AllowPrivateAccess = true))
 	TObjectPtr<UBuffComponent> Buff;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LagCompensation", meta = (AllowPrivateAccess = true))
+	TObjectPtr<ULagCompensationComponent> LagCompensation;
 
 	UFUNCTION(Server, Reliable)
 	void ServerEquipButtonPressed();
