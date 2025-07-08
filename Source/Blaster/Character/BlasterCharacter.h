@@ -132,6 +132,10 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Components")
 	FORCEINLINE UBuffComponent* GetBuff() const { return Buff; }
 
+	/** Returns the Lag Compensation Component of the character. Can be null on the first few frames of the game. */
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Components")
+	FORCEINLINE ULagCompensationComponent* GetLagCompensation() const { return LagCompensation; }
+
 	UFUNCTION(BlueprintCallable)
 	bool GetDisableGameplay() const;
 

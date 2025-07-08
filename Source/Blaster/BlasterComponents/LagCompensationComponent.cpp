@@ -28,32 +28,6 @@ void ULagCompensationComponent::BeginPlay()
 	ConstructInitialCapsuleInfo();
 }
 
-void ULagCompensationComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	if (FrameHistory.Num() <= 1)
-	{
-		FFramePackage ThisFrame;
-		SaveFramePackage(ThisFrame);
-		FrameHistory.AddHead(ThisFrame);
-	}
-	else
-	{
-		float HistoryLength = FrameHistory.GetHead()->GetValue().Time - FrameHistory.GetTail()->GetValue().Time;
-		while (HistoryLength > MaxRecordTime)
-		{
-			FrameHistory.RemoveNode(FrameHistory.GetTail());
-			HistoryLength = FrameHistory.GetHead()->GetValue().Time - FrameHistory.GetTail()->GetValue().Time;
-		}
-		FFramePackage ThisFrame;
-		SaveFramePackage(ThisFrame);
-		FrameHistory.AddHead(ThisFrame);
-
-		if (LagCompensationCVars::ShowFrameHistory) ShowFramePackage(ThisFrame, FColor::Red);
-	}
-}
-
 void ULagCompensationComponent::ConstructInitialCapsuleInfo()
 {
 	if (Character == nullptr || Character->GetMesh() == nullptr || Character->GetMesh()->GetPhysicsAsset() == nullptr) return;
@@ -80,18 +54,29 @@ void ULagCompensationComponent::ConstructInitialCapsuleInfo()
 	}
 }
 
-void ULagCompensationComponent::ShowFramePackage(const FFramePackage& Package, const FColor& Color, bool bPersistent)
+void ULagCompensationComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
-	for (const FCapsuleInfo& CapsuleInfo : Package.HitBoxInfo)
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	if (FrameHistory.Num() <= 1)
 	{
-		DrawDebugCapsule(GetWorld(),
-			CapsuleInfo.BoneWorldTransform.GetLocation(),
-			CapsuleInfo.HalfHeight,
-			CapsuleInfo.Radius,
-			CapsuleInfo.BoneWorldTransform.GetRotation(),
-			Color,
-			bPersistent,
-			MaxRecordTime);
+		FFramePackage ThisFrame;
+		SaveFramePackage(ThisFrame);
+		FrameHistory.AddHead(ThisFrame);
+	}
+	else
+	{
+		float HistoryLength = FrameHistory.GetHead()->GetValue().Time - FrameHistory.GetTail()->GetValue().Time;
+		while (HistoryLength > MaxRecordTime)
+		{
+			FrameHistory.RemoveNode(FrameHistory.GetTail());
+			HistoryLength = FrameHistory.GetHead()->GetValue().Time - FrameHistory.GetTail()->GetValue().Time;
+		}
+		FFramePackage ThisFrame;
+		SaveFramePackage(ThisFrame);
+		FrameHistory.AddHead(ThisFrame);
+
+		if (LagCompensationCVars::ShowFrameHistory) ShowFramePackage(ThisFrame, FColor::Red);
 	}
 }
 
@@ -115,5 +100,82 @@ void ULagCompensationComponent::SaveFramePackage(FFramePackage& Package)
 			
 			Package.HitBoxInfo.Add(CapsuleInfo);
 		}
+	}
+}
+
+void ULagCompensationComponent::ShowFramePackage(const FFramePackage& Package, const FColor& Color, bool bPersistent)
+{
+	for (const FCapsuleInfo& CapsuleInfo : Package.HitBoxInfo)
+	{
+		DrawDebugCapsule(GetWorld(),
+			CapsuleInfo.BoneWorldTransform.GetLocation(),
+			CapsuleInfo.HalfHeight,
+			CapsuleInfo.Radius,
+			CapsuleInfo.BoneWorldTransform.GetRotation(),
+			Color,
+			bPersistent,
+			MaxRecordTime);
+	}
+}
+
+void ULagCompensationComponent::ServerSideRewind(ABlasterCharacter* HitCharacter,
+	const FVector_NetQuantize& TraceStart, const FVector_NetQuantize& HitLocation, float HitTime)
+{
+	if (HitCharacter == nullptr ||
+		HitCharacter->GetLagCompensation() == nullptr ||
+		HitCharacter->GetLagCompensation()->FrameHistory.GetHead() == nullptr ||
+		HitCharacter->GetLagCompensation()->FrameHistory.GetTail() == nullptr)
+		return;
+
+	// Frame Package that we check to verify a hit
+	FFramePackage FrameToCheck;
+
+	bool bShouldInterpolate = true;
+
+	// Frame history of the HitCharacter
+	const TDoubleLinkedList<FFramePackage>& History = HitCharacter->GetLagCompensation()->FrameHistory;
+
+	const float OldestHistoryTime = History.GetTail()->GetValue().Time;
+	const float NewestHistoryTime = History.GetHead()->GetValue().Time;
+
+	if (OldestHistoryTime > HitTime)
+	{
+		// Too far back - too laggy to perform SSR
+		return;
+	}
+	if (OldestHistoryTime == HitTime)
+	{
+		FrameToCheck = History.GetTail()->GetValue();
+		bShouldInterpolate = false;
+	}
+	if (NewestHistoryTime <= HitTime)
+	{
+		FrameToCheck = History.GetHead()->GetValue();
+		bShouldInterpolate = false;
+	}
+
+	TDoubleLinkedList<FFramePackage>::TDoubleLinkedListNode* YoungerFrame = History.GetHead();
+	TDoubleLinkedList<FFramePackage>::TDoubleLinkedListNode* OlderFrame = YoungerFrame;
+
+	while (OlderFrame->GetValue().Time > HitTime) // Is Older still younger than HitTime?
+	{
+		// March back until OlderFrame.Time < HitTime < YoungerFrame.Time
+		if (OlderFrame->GetNextNode() == nullptr) break;
+		OlderFrame = OlderFrame->GetNextNode();
+		if (OlderFrame->GetValue().Time > HitTime)
+		{
+			YoungerFrame = OlderFrame;
+		}
+	}
+	
+	if (OlderFrame->GetValue().Time == HitTime) // Highly unlikely, but we found our frame to check
+	{
+		FrameToCheck = OlderFrame->GetValue();
+		bShouldInterpolate = false;
+	}
+
+	if (bShouldInterpolate)
+	{
+		// Interpolate between YoungerFrame and OlderFrame
 	}
 }
