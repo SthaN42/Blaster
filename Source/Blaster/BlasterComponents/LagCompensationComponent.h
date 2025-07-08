@@ -15,9 +15,6 @@ struct FCapsuleInfo
 	GENERATED_BODY()
 
 	UPROPERTY()
-	FName BoneName = FName();
-
-	UPROPERTY()
 	int32 BoneIndex = 0;
 
 	UPROPERTY()
@@ -30,6 +27,7 @@ struct FCapsuleInfo
 	float Radius = 0.f;
 };
 
+// Only supports one capsule per bone in the physics asset
 USTRUCT(BlueprintType)
 struct FFramePackage
 {
@@ -39,7 +37,7 @@ struct FFramePackage
 	float Time = 0.f;
 
 	UPROPERTY()
-	TArray<FCapsuleInfo> HitBoxInfo;
+	TMap<FName, FCapsuleInfo> HitBoxInfo;
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -77,5 +75,5 @@ private:
 	float MaxRecordTime = 2.f;
 	
 	UPROPERTY()
-	TArray<FCapsuleInfo> InitialCapsuleInfo;
+	TMap<FName, FCapsuleInfo> InitialCapsuleInfo;
 };

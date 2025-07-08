@@ -42,14 +42,13 @@ void ULagCompensationComponent::ConstructInitialCapsuleInfo()
 			// const FTransform WorldTransform = LocTransform * BoneWorldTransform;
 
 			FCapsuleInfo Capsule;
-			Capsule.BoneName = BoneName;
 			Capsule.BoneIndex = Character->GetMesh()->GetBoneIndex(BoneName);
 			// For the initial info, we need the local transform (physic body's transform)
 			Capsule.BoneWorldTransform = LocTransform;
 			Capsule.HalfHeight = SphylElem.Length / 2.f + SphylElem.Radius;
 			Capsule.Radius = SphylElem.Radius;
 			
-			InitialCapsuleInfo.Add(Capsule);
+			InitialCapsuleInfo.Add(BoneName, Capsule);
 		}
 	}
 }
@@ -88,30 +87,29 @@ void ULagCompensationComponent::SaveFramePackage(FFramePackage& Package)
 	if (Character && Character->GetMesh())
 	{
 		Package.Time = GetWorld()->GetTimeSeconds();
-		for (const FCapsuleInfo& InitialCapsule : InitialCapsuleInfo)
+		for (const TPair<FName, FCapsuleInfo>& InitialCapsule : InitialCapsuleInfo)
 		{
 			FCapsuleInfo CapsuleInfo;
-			CapsuleInfo.BoneName = InitialCapsule.BoneName;
-			CapsuleInfo.BoneIndex = InitialCapsule.BoneIndex;
+			CapsuleInfo.BoneIndex = InitialCapsule.Value.BoneIndex;
 			// Local Bone Transform (physic body's transform) * World Bone Transform
-			CapsuleInfo.BoneWorldTransform = InitialCapsule.BoneWorldTransform * Character->GetMesh()->GetBoneTransform(InitialCapsule.BoneIndex);
-			CapsuleInfo.HalfHeight = InitialCapsule.HalfHeight;
-			CapsuleInfo.Radius = InitialCapsule.Radius;
+			CapsuleInfo.BoneWorldTransform = InitialCapsule.Value.BoneWorldTransform * Character->GetMesh()->GetBoneTransform(InitialCapsule.Value.BoneIndex);
+			CapsuleInfo.HalfHeight = InitialCapsule.Value.HalfHeight;
+			CapsuleInfo.Radius = InitialCapsule.Value.Radius;
 			
-			Package.HitBoxInfo.Add(CapsuleInfo);
+			Package.HitBoxInfo.Add(InitialCapsule.Key, CapsuleInfo);
 		}
 	}
 }
 
 void ULagCompensationComponent::ShowFramePackage(const FFramePackage& Package, const FColor& Color, bool bPersistent)
 {
-	for (const FCapsuleInfo& CapsuleInfo : Package.HitBoxInfo)
+	for (const TPair<FName, FCapsuleInfo>& CapsuleInfo : Package.HitBoxInfo)
 	{
 		DrawDebugCapsule(GetWorld(),
-			CapsuleInfo.BoneWorldTransform.GetLocation(),
-			CapsuleInfo.HalfHeight,
-			CapsuleInfo.Radius,
-			CapsuleInfo.BoneWorldTransform.GetRotation(),
+			CapsuleInfo.Value.BoneWorldTransform.GetLocation(),
+			CapsuleInfo.Value.HalfHeight,
+			CapsuleInfo.Value.Radius,
+			CapsuleInfo.Value.BoneWorldTransform.GetRotation(),
 			Color,
 			bPersistent,
 			MaxRecordTime);
