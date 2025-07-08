@@ -177,3 +177,31 @@ void ULagCompensationComponent::ServerSideRewind(ABlasterCharacter* HitCharacter
 		// Interpolate between YoungerFrame and OlderFrame
 	}
 }
+
+FFramePackage ULagCompensationComponent::InterpBetweenFrames(const FFramePackage& OlderFrame,
+	const FFramePackage& YoungerFrame, float HitTime)
+{
+	const float Distance = YoungerFrame.Time - OlderFrame.Time;
+	const float InterpFraction = FMath::Clamp((HitTime - OlderFrame.Time) / Distance, 0.f, 1.f);
+
+	FFramePackage InterpFramePackage;
+	InterpFramePackage.Time = HitTime;
+
+	for (const TPair<FName, FCapsuleInfo>& YoungerPair : YoungerFrame.HitBoxInfo)
+	{
+		const FCapsuleInfo& OlderInfo = OlderFrame.HitBoxInfo[YoungerPair.Key];
+		const FCapsuleInfo& YoungerInfo = YoungerFrame.HitBoxInfo[YoungerPair.Key];
+
+		FCapsuleInfo InterpCapsuleInfo;
+
+		InterpCapsuleInfo.BoneIndex = YoungerInfo.BoneIndex;
+		InterpCapsuleInfo.BoneWorldTransform.SetLocation(FMath::VInterpTo(OlderInfo.BoneWorldTransform.GetLocation(), YoungerInfo.BoneWorldTransform.GetLocation(), 1.f, InterpFraction));
+		InterpCapsuleInfo.BoneWorldTransform.SetRotation(FMath::QInterpTo(OlderInfo.BoneWorldTransform.GetRotation(), YoungerInfo.BoneWorldTransform.GetRotation(), 1.f, InterpFraction));
+		InterpCapsuleInfo.HalfHeight = YoungerInfo.HalfHeight;
+		InterpCapsuleInfo.Radius = YoungerInfo.Radius;
+
+		InterpFramePackage.HitBoxInfo.Add(YoungerPair.Key, InterpCapsuleInfo);
+	}
+	
+	return InterpFramePackage;
+}
