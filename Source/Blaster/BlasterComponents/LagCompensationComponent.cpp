@@ -6,6 +6,16 @@
 #include "Blaster/Character/BlasterCharacter.h"
 #include "PhysicsEngine/PhysicsAsset.h"
 
+namespace LagCompensationCVars
+{
+	static bool ShowFrameHistory = false;
+	static FAutoConsoleVariableRef CVarShowFrameHistory(
+		TEXT("LagCompensation.ShowFrameHistory"),
+		ShowFrameHistory,
+		TEXT("When true, will display recorded frames for server-side rewind."),
+		ECVF_Default | ECVF_Cheat);
+}
+
 ULagCompensationComponent::ULagCompensationComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -16,19 +26,32 @@ void ULagCompensationComponent::BeginPlay()
 	Super::BeginPlay();
 
 	ConstructInitialCapsuleInfo();
-
-	FFramePackage Package;
-	SaveFramePackage(Package);
-	ShowFramePackage(Package, FColor::Red, true);
 }
 
 void ULagCompensationComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	FFramePackage Package;
-	SaveFramePackage(Package);
-	ShowFramePackage(Package, FColor::Orange);
+	if (FrameHistory.Num() <= 1)
+	{
+		FFramePackage ThisFrame;
+		SaveFramePackage(ThisFrame);
+		FrameHistory.AddHead(ThisFrame);
+	}
+	else
+	{
+		float HistoryLength = FrameHistory.GetHead()->GetValue().Time - FrameHistory.GetTail()->GetValue().Time;
+		while (HistoryLength > MaxRecordTime)
+		{
+			FrameHistory.RemoveNode(FrameHistory.GetTail());
+			HistoryLength = FrameHistory.GetHead()->GetValue().Time - FrameHistory.GetTail()->GetValue().Time;
+		}
+		FFramePackage ThisFrame;
+		SaveFramePackage(ThisFrame);
+		FrameHistory.AddHead(ThisFrame);
+
+		if (LagCompensationCVars::ShowFrameHistory) ShowFramePackage(ThisFrame, FColor::Red);
+	}
 }
 
 void ULagCompensationComponent::ConstructInitialCapsuleInfo()

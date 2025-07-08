@@ -69,6 +69,8 @@ private:
 	UPROPERTY()
 	TObjectPtr<ABlasterPlayerController> Controller;
 
+	TDoubleLinkedList<FFramePackage> FrameHistory;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Lag Compensation|Server-Side Rewind")
 	float MaxRecordTime = 2.f;
 	
