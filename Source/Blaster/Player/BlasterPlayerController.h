@@ -45,6 +45,8 @@ public:
 
 	// Synced with server world clock
 	virtual float GetServerTime() const;
+
+	float SingleTripTime = 0.f;
 	
 	void OnMatchStateSet(FName State);
 

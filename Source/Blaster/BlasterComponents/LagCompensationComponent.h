@@ -15,10 +15,10 @@ struct FCapsuleInfo
 	GENERATED_BODY()
 
 	UPROPERTY()
-	FVector Location = FVector();
+	FVector Location = FVector::ZeroVector;
 
 	UPROPERTY()
-	FRotator Rotation = FRotator();
+	FRotator Rotation = FRotator::ZeroRotator;
 
 	UPROPERTY()
 	float HalfHeight = 0.f;
@@ -66,9 +66,14 @@ public:
 	void ShowFramePackage(const FFramePackage& Package, const FColor& Color, const bool bPersistent = false) const;
 
 	FServerSideRewindResult ServerSideRewind(ABlasterCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize& HitLocation, const float HitTime) const;
+	
+	UFUNCTION(Server, Reliable)
+	void ServerScoreRequest(ABlasterCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize& HitLocation, const float HitTime, AWeapon* DamageCauser);
 
 protected:
 	virtual void BeginPlay() override;
+
+	void SaveFramePackage();
 
 	void SaveFramePackage(FFramePackage& Package);
 

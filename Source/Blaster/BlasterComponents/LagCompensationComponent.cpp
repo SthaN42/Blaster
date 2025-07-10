@@ -5,7 +5,9 @@
 
 #include "Blaster/Character/BlasterCharacter.h"
 #include "Blaster/Physics/BlasterCollisionChannels.h"
+#include "Blaster/Weapon/Weapon.h"
 #include "Components/CapsuleComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 namespace LagCompensationCVars
 {
@@ -31,6 +33,13 @@ void ULagCompensationComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	SaveFramePackage();
+}
+
+void ULagCompensationComponent::SaveFramePackage()
+{
+	if (Character == nullptr || !Character->HasAuthority()) return;
+
 	if (FrameHistory.Num() <= 1)
 	{
 		FFramePackage ThisFrame;
@@ -52,6 +61,7 @@ void ULagCompensationComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 		if (LagCompensationCVars::ShowFrameHistory) ShowFramePackage(ThisFrame, FColor::Red);
 	}
 }
+
 
 void ULagCompensationComponent::SaveFramePackage(FFramePackage& Package)
 {
@@ -86,6 +96,17 @@ void ULagCompensationComponent::ShowFramePackage(const FFramePackage& Package, c
 			MaxRecordTime);
 	}
 }
+
+void ULagCompensationComponent::ServerScoreRequest_Implementation(ABlasterCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize& HitLocation, const float HitTime, AWeapon* DamageCauser)
+{
+	FServerSideRewindResult Confirm = ServerSideRewind(HitCharacter, TraceStart, HitLocation, HitTime);
+
+	if (Character && HitCharacter && DamageCauser && Confirm.bHitConfirmed)
+	{
+		UGameplayStatics::ApplyDamage(HitCharacter, DamageCauser->GetDamage(), Character->Controller, DamageCauser, UDamageType::StaticClass());
+	}
+}
+
 
 FServerSideRewindResult ULagCompensationComponent::ServerSideRewind(ABlasterCharacter* HitCharacter,
 	const FVector_NetQuantize& TraceStart, const FVector_NetQuantize& HitLocation, const float HitTime) const

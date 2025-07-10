@@ -72,6 +72,8 @@ public:
 	FORCEINLINE float GetZoomedFOV() const { return ZoomedFOV; }
 	FORCEINLINE float GetZoomInterpSpeed() const { return ZoomInterpSpeed; }
 
+	FORCEINLINE float GetDamage() const { return Damage; }
+
 	FORCEINLINE int32 GetAmmo() const { return Ammo; }
 	FORCEINLINE int32 GetMagCapacity() const { return MagCapacity; }
 
@@ -149,6 +151,12 @@ protected:
 
 	ABlasterPlayerController* GetOwnerController();
 
+	UPROPERTY(EditAnywhere, Category = "WeaponProperties")
+	float Damage = 20.f;
+
+	UPROPERTY(EditAnywhere, Category = "WeaponProperties", meta = (Units = "x"))
+	float WeakSpotMultiplier = 1.f;
+
 	/* Scatter */
 
 	UPROPERTY(EditDefaultsOnly, Category = "WeaponProperties|Scatter", meta = (EditCondition = "bUseScatter"))
@@ -156,6 +164,11 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "WeaponProperties|Scatter", meta = (EditCondition = "bUseScatter"))
 	float SphereRadius = 75.f;
+
+	/* Other */
+
+	UPROPERTY(EditAnywhere, Category = "WeaponProperties")
+	bool bUseServerSideRewind = false;
 
 private:
 	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_WeaponState, Category = "WeaponProperties", AdvancedDisplay)
@@ -210,10 +223,10 @@ private:
 		return WeaponMesh == nullptr ? TArray<FName>() : WeaponMesh->GetAllSocketNames();
 	}
 
-	UPROPERTY(EditDefaultsOnly, Category = "WeaponProperties")
+	UPROPERTY(EditAnywhere, Category = "WeaponProperties")
 	EHighlightColor HighlightColor = EHighlightColor::Purple;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "WeaponProperties")
+	UPROPERTY(EditAnywhere, Category = "WeaponProperties")
 	EHighlightColor BackpackHighlightColor = EHighlightColor::Tan;
 
 	UPROPERTY()

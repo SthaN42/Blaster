@@ -3,7 +3,9 @@
 
 #include "HitScanWeapon.h"
 
+#include "Blaster/BlasterComponents/LagCompensationComponent.h"
 #include "Blaster/Character/BlasterCharacter.h"
+#include "Blaster/Player/BlasterPlayerController.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystemComponent.h"
@@ -36,9 +38,23 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 		WeaponTraceHit(Start, HitTarget, FireHit);
 
 		ABlasterCharacter* BlasterCharacter = Cast<ABlasterCharacter>(FireHit.GetActor());
-		if (BlasterCharacter && HasAuthority() && InstigatorController)
+		if (BlasterCharacter  && InstigatorController)
 		{
-			UGameplayStatics::ApplyDamage(BlasterCharacter, Damage, InstigatorController, this, UDamageType::StaticClass());
+			if (HasAuthority() && !bUseServerSideRewind)
+			{
+				UGameplayStatics::ApplyDamage(BlasterCharacter, Damage, InstigatorController, this, UDamageType::StaticClass());
+			}
+			if (!HasAuthority() && bUseServerSideRewind)
+			{
+				if (GetOwnerCharacter() && GetOwnerController() && GetOwnerCharacter()->GetLagCompensation())
+				{
+					GetOwnerCharacter()->GetLagCompensation()->ServerScoreRequest(BlasterCharacter,
+						Start,
+						HitTarget,
+						GetOwnerController()->GetServerTime() - GetOwnerController()->SingleTripTime,
+						this);
+				}
+			}
 		}
 		
 		if (ImpactParticles)

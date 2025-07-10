@@ -366,7 +366,7 @@ ABlasterCharacter* AWeapon::GetOwnerCharacter()
 
 ABlasterPlayerController* AWeapon::GetOwnerController()
 {
-	if (BlasterOwnerController == nullptr)
+	if (GetOwnerCharacter() && BlasterOwnerController == nullptr)
 	{
 		BlasterOwnerController = Cast<ABlasterPlayerController>(GetOwnerCharacter()->Controller);
 	}

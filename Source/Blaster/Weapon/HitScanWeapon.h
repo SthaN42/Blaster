@@ -25,9 +25,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "WeaponProperties|Effects")
 	TObjectPtr<UParticleSystem> ImpactParticles;
-
-	UPROPERTY(EditDefaultsOnly, Category = "WeaponProperties")
-	float Damage = 20.f;
 	
 private:
 	UPROPERTY(EditAnywhere, Category = "WeaponProperties|Effects")
