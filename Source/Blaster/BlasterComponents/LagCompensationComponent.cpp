@@ -136,7 +136,7 @@ FServerSideRewindResult ULagCompensationComponent::ServerSideRewind(ABlasterChar
 			YoungerFrame = OlderFrame;
 		}
 	}
-	
+
 	if (OlderFrame->GetValue().Time == HitTime) // Highly unlikely, but we found our frame to check
 	{
 		FrameToCheck = OlderFrame->GetValue();
@@ -174,7 +174,7 @@ FFramePackage ULagCompensationComponent::InterpBetweenFrames(const FFramePackage
 
 		InterpFramePackage.HitBoxInfo.Add(YoungerPair.Key, InterpCapsuleInfo);
 	}
-	
+
 	return InterpFramePackage;
 }
 
@@ -185,29 +185,26 @@ FServerSideRewindResult ULagCompensationComponent::ConfirmHit(const FFramePackag
 
 	FFramePackage CurrentFrame;
 	CacheCapsulePositions(HitCharacter, CurrentFrame);
-	
+
 	MoveBoxes(HitCharacter, Package, true);
 
 	bool bSuccessfulHit = false, bWeakSpotHit = false;
-	
+
 	if (const UWorld* World = GetWorld())
 	{
 		FHitResult ConfirmHitResult;
 		const FVector TraceEnd = TraceStart + (HitLocation - TraceStart) * 1.25f;
-		
+
 		World->LineTraceSingleByChannel(ConfirmHitResult, TraceStart, TraceEnd, ECC_HitBox);
 
-		if (ConfirmHitResult.bBlockingHit)
+		bSuccessfulHit = ConfirmHitResult.bBlockingHit;
+		if (ConfirmHitResult.PhysMaterial.Get())
 		{
-			bSuccessfulHit = true;
-			if (ConfirmHitResult.PhysMaterial.Get())
-			{
-				bWeakSpotHit = ConfirmHitResult.PhysMaterial.Get()->SurfaceType == EPS_Player_WeakSpot;
-			}
+			bWeakSpotHit = ConfirmHitResult.PhysMaterial.Get()->SurfaceType == EPS_Player_WeakSpot;
 		}
 	}
 	MoveBoxes(HitCharacter, CurrentFrame, false);
-	
+
 	return FServerSideRewindResult(bSuccessfulHit, bWeakSpotHit);
 }
 

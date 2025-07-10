@@ -75,7 +75,6 @@ public:
 	UPROPERTY()
 	ABlasterPlayerState* BlasterPlayerState;
 
-	UPROPERTY(BlueprintReadOnly)
 	TMap<FName, TObjectPtr<UCapsuleComponent>> HitCollisionCapsules;
 
 	/* Getters / Setters */
