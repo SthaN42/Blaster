@@ -4,7 +4,7 @@
 #include "LagCompensationComponent.h"
 
 #include "Blaster/Character/BlasterCharacter.h"
-#include "PhysicsEngine/PhysicsAsset.h"
+#include "Components/CapsuleComponent.h"
 
 namespace LagCompensationCVars
 {
@@ -24,33 +24,6 @@ ULagCompensationComponent::ULagCompensationComponent()
 void ULagCompensationComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	ConstructInitialCapsuleInfo();
-}
-
-void ULagCompensationComponent::ConstructInitialCapsuleInfo()
-{
-	if (Character == nullptr || Character->GetMesh() == nullptr || Character->GetMesh()->GetPhysicsAsset() == nullptr) return;
-	
-	for (const TObjectPtr<USkeletalBodySetup>& BodySetup : Character->GetMesh()->GetPhysicsAsset()->SkeletalBodySetups)
-	{
-		const FName BoneName = BodySetup->BoneName;
-		// const FTransform BoneWorldTransform = Character->GetMesh()->GetBoneTransform(Character->GetMesh()->GetBoneIndex(BoneName));
-		for (const auto& SphylElem : BodySetup->AggGeom.SphylElems)
-		{
-			const FTransform LocTransform = SphylElem.GetTransform();
-			// const FTransform WorldTransform = LocTransform * BoneWorldTransform;
-
-			FCapsuleInfo Capsule;
-			Capsule.BoneIndex = Character->GetMesh()->GetBoneIndex(BoneName);
-			// For the initial info, we need the local transform (physic body's transform)
-			Capsule.BoneWorldTransform = LocTransform;
-			Capsule.HalfHeight = SphylElem.Length / 2.f + SphylElem.Radius;
-			Capsule.Radius = SphylElem.Radius;
-			
-			InitialCapsuleInfo.Add(BoneName, Capsule);
-		}
-	}
 }
 
 void ULagCompensationComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -81,22 +54,19 @@ void ULagCompensationComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 
 void ULagCompensationComponent::SaveFramePackage(FFramePackage& Package)
 {
-	checkf(!InitialCapsuleInfo.IsEmpty(), TEXT("InitialCapsuleInfo is empty! Call ConstructInitialCapsuleInfo() first, and make sure the skeletal mesh of your character has a valid physics assets with physics bodies (only Capsules are supported)."))
-	
 	if (!Character) Character = Cast<ABlasterCharacter>(GetOwner());
 	if (Character && Character->GetMesh())
 	{
 		Package.Time = GetWorld()->GetTimeSeconds();
-		for (const TPair<FName, FCapsuleInfo>& InitialCapsule : InitialCapsuleInfo)
+		for (const TPair<FName, TObjectPtr<UCapsuleComponent>>& CapsulePair : Character->HitCollisionCapsules)
 		{
 			FCapsuleInfo CapsuleInfo;
-			CapsuleInfo.BoneIndex = InitialCapsule.Value.BoneIndex;
-			// Local Bone Transform (physic body's transform) * World Bone Transform
-			CapsuleInfo.BoneWorldTransform = InitialCapsule.Value.BoneWorldTransform * Character->GetMesh()->GetBoneTransform(InitialCapsule.Value.BoneIndex);
-			CapsuleInfo.HalfHeight = InitialCapsule.Value.HalfHeight;
-			CapsuleInfo.Radius = InitialCapsule.Value.Radius;
+			CapsuleInfo.Location = CapsulePair.Value->GetComponentLocation();
+			CapsuleInfo.Rotation = CapsulePair.Value->GetComponentRotation();
+			CapsuleInfo.HalfHeight = CapsulePair.Value->GetScaledCapsuleHalfHeight();
+			CapsuleInfo.Radius = CapsulePair.Value->GetScaledCapsuleRadius();
 			
-			Package.HitBoxInfo.Add(InitialCapsule.Key, CapsuleInfo);
+			Package.HitBoxInfo.Add(CapsulePair.Key, CapsuleInfo);
 		}
 	}
 }
@@ -106,10 +76,10 @@ void ULagCompensationComponent::ShowFramePackage(const FFramePackage& Package, c
 	for (const TPair<FName, FCapsuleInfo>& CapsuleInfo : Package.HitBoxInfo)
 	{
 		DrawDebugCapsule(GetWorld(),
-			CapsuleInfo.Value.BoneWorldTransform.GetLocation(),
+			CapsuleInfo.Value.Location,
 			CapsuleInfo.Value.HalfHeight,
 			CapsuleInfo.Value.Radius,
-			CapsuleInfo.Value.BoneWorldTransform.GetRotation(),
+			CapsuleInfo.Value.Rotation.Quaternion(),
 			Color,
 			bPersistent,
 			MaxRecordTime);
@@ -194,9 +164,8 @@ FFramePackage ULagCompensationComponent::InterpBetweenFrames(const FFramePackage
 
 		FCapsuleInfo InterpCapsuleInfo;
 
-		InterpCapsuleInfo.BoneIndex = YoungerInfo.BoneIndex;
-		InterpCapsuleInfo.BoneWorldTransform.SetLocation(FMath::VInterpTo(OlderInfo.BoneWorldTransform.GetLocation(), YoungerInfo.BoneWorldTransform.GetLocation(), 1.f, InterpFraction));
-		InterpCapsuleInfo.BoneWorldTransform.SetRotation(FMath::QInterpTo(OlderInfo.BoneWorldTransform.GetRotation(), YoungerInfo.BoneWorldTransform.GetRotation(), 1.f, InterpFraction));
+		InterpCapsuleInfo.Location = FMath::Lerp(OlderInfo.Location, YoungerInfo.Location, HitTime);
+		InterpCapsuleInfo.Rotation = FMath::Lerp(OlderInfo.Rotation, YoungerInfo.Rotation, HitTime);
 		InterpCapsuleInfo.HalfHeight = YoungerInfo.HalfHeight;
 		InterpCapsuleInfo.Radius = YoungerInfo.Radius;
 

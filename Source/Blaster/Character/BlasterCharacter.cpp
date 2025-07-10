@@ -6,7 +6,7 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "Blaster/Blaster.h"
+#include "Blaster/Physics/BlasterCollisionChannels.h"
 #include "Blaster/BlasterComponents/CombatComponent.h"
 #include "Blaster/BlasterTypes/TurningInPlace.h"
 #include "Blaster/GameMode/BlasterGameMode.h"
@@ -23,6 +23,7 @@
 #include "Blaster/Player/BlasterPlayerState.h"
 #include "Blaster/Weapon/WeaponTypes.h"
 #include "Kismet/GameplayStatics.h"
+#include "PhysicsEngine/PhysicsAsset.h"
 
 ABlasterCharacter::ABlasterCharacter()
 {
@@ -100,6 +101,8 @@ bool ABlasterCharacter::GetDisableGameplay() const
 void ABlasterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	HitCapsulesConstruction();
 	
 	if (CameraBoom)
 	{
@@ -114,6 +117,31 @@ void ABlasterCharacter::BeginPlay()
 	if (HasAuthority())
 	{
 		OnTakeAnyDamage.AddDynamic(this, &ThisClass::ReceiveDamage);
+	}
+}
+
+void ABlasterCharacter::HitCapsulesConstruction()
+{
+	if (GetMesh() == nullptr || GetMesh()->GetPhysicsAsset() == nullptr) return;
+
+	for (const TObjectPtr<USkeletalBodySetup>& BodySetup : GetMesh()->GetPhysicsAsset()->SkeletalBodySetups)
+	{
+		const FName BoneName = BodySetup->BoneName;
+		const FTransform BoneWorldTransform = GetMesh()->GetBoneTransform(GetMesh()->GetBoneIndex(BoneName));
+		for (const auto& SphylElem : BodySetup->AggGeom.SphylElems)
+		{
+			const FTransform LocTransform = SphylElem.GetTransform();
+			const FTransform WorldTransform = LocTransform * BoneWorldTransform;
+			
+			UCapsuleComponent* HitCapsule = NewObject<UCapsuleComponent>(this, UCapsuleComponent::StaticClass(), BoneName, RF_Transient);
+			HitCapsule->SetupAttachment(GetMesh(), BoneName);
+			HitCapsule->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			HitCapsule->SetWorldTransform(WorldTransform);
+			HitCapsule->SetCapsuleSize(SphylElem.Radius, SphylElem.Length / 2.f + SphylElem.Radius);
+
+			HitCapsule->RegisterComponent();
+			HitCollisionCapsules.Add(BoneName, HitCapsule);
+		}
 	}
 }
 

@@ -75,6 +75,9 @@ public:
 	UPROPERTY()
 	ABlasterPlayerState* BlasterPlayerState;
 
+	UPROPERTY(BlueprintReadOnly)
+	TMap<FName, TObjectPtr<UCapsuleComponent>> HitCollisionCapsules;
+
 	/* Getters / Setters */
 
 	UFUNCTION(BlueprintCallable)
@@ -191,6 +194,8 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LagCompensation", meta = (AllowPrivateAccess = true))
 	TObjectPtr<ULagCompensationComponent> LagCompensation;
+
+	void HitCapsulesConstruction();
 
 	UFUNCTION(Server, Reliable)
 	void ServerEquipButtonPressed();

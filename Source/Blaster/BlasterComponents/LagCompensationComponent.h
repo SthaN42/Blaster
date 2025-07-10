@@ -15,10 +15,10 @@ struct FCapsuleInfo
 	GENERATED_BODY()
 
 	UPROPERTY()
-	int32 BoneIndex = 0;
+	FVector Location = FVector();
 
 	UPROPERTY()
-	FTransform BoneWorldTransform = FTransform();
+	FRotator Rotation = FRotator();
 
 	UPROPERTY()
 	float HalfHeight = 0.f;
@@ -58,8 +58,6 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	void ConstructInitialCapsuleInfo();
-
 	void SaveFramePackage(FFramePackage& Package);
 
 	FFramePackage InterpBetweenFrames(const FFramePackage& OlderFrame, const FFramePackage& YoungerFrame, float HitTime);
@@ -75,7 +73,4 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Lag Compensation|Server-Side Rewind")
 	float MaxRecordTime = 2.f;
-	
-	UPROPERTY()
-	TMap<FName, FCapsuleInfo> InitialCapsuleInfo;
 };

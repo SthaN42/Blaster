@@ -4,7 +4,7 @@
 #include "Projectile.h"
 
 #include "NiagaraFunctionLibrary.h"
-#include "Blaster/Blaster.h"
+#include "Blaster/Physics/BlasterCollisionChannels.h"
 #include "Blaster/BlasterLogChannels.h"
 #include "Components/BoxComponent.h"
 #include "GameFramework/Character.h"
