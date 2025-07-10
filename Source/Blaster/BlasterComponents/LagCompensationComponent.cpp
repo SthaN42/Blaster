@@ -4,6 +4,7 @@
 #include "LagCompensationComponent.h"
 
 #include "Blaster/Character/BlasterCharacter.h"
+#include "Blaster/Physics/BlasterCollisionChannels.h"
 #include "Components/CapsuleComponent.h"
 
 namespace LagCompensationCVars
@@ -71,7 +72,7 @@ void ULagCompensationComponent::SaveFramePackage(FFramePackage& Package)
 	}
 }
 
-void ULagCompensationComponent::ShowFramePackage(const FFramePackage& Package, const FColor& Color, bool bPersistent)
+void ULagCompensationComponent::ShowFramePackage(const FFramePackage& Package, const FColor& Color, const bool bPersistent) const
 {
 	for (const TPair<FName, FCapsuleInfo>& CapsuleInfo : Package.HitBoxInfo)
 	{
@@ -86,14 +87,14 @@ void ULagCompensationComponent::ShowFramePackage(const FFramePackage& Package, c
 	}
 }
 
-void ULagCompensationComponent::ServerSideRewind(ABlasterCharacter* HitCharacter,
-	const FVector_NetQuantize& TraceStart, const FVector_NetQuantize& HitLocation, float HitTime)
+FServerSideRewindResult ULagCompensationComponent::ServerSideRewind(ABlasterCharacter* HitCharacter,
+	const FVector_NetQuantize& TraceStart, const FVector_NetQuantize& HitLocation, const float HitTime) const
 {
 	if (HitCharacter == nullptr ||
 		HitCharacter->GetLagCompensation() == nullptr ||
 		HitCharacter->GetLagCompensation()->FrameHistory.GetHead() == nullptr ||
 		HitCharacter->GetLagCompensation()->FrameHistory.GetTail() == nullptr)
-		return;
+		return FServerSideRewindResult();
 
 	// Frame Package that we check to verify a hit
 	FFramePackage FrameToCheck;
@@ -109,7 +110,7 @@ void ULagCompensationComponent::ServerSideRewind(ABlasterCharacter* HitCharacter
 	if (OldestHistoryTime > HitTime)
 	{
 		// Too far back - too laggy to perform SSR
-		return;
+		return FServerSideRewindResult();
 	}
 	if (OldestHistoryTime == HitTime)
 	{
@@ -144,12 +145,14 @@ void ULagCompensationComponent::ServerSideRewind(ABlasterCharacter* HitCharacter
 
 	if (bShouldInterpolate)
 	{
-		// Interpolate between YoungerFrame and OlderFrame
+		FrameToCheck = InterpBetweenFrames(OlderFrame->GetValue(), YoungerFrame->GetValue(), HitTime);
 	}
+
+	return ConfirmHit(FrameToCheck, HitCharacter, TraceStart, HitLocation);
 }
 
 FFramePackage ULagCompensationComponent::InterpBetweenFrames(const FFramePackage& OlderFrame,
-	const FFramePackage& YoungerFrame, float HitTime)
+	const FFramePackage& YoungerFrame, const float HitTime)
 {
 	const float Distance = YoungerFrame.Time - OlderFrame.Time;
 	const float InterpFraction = FMath::Clamp((HitTime - OlderFrame.Time) / Distance, 0.f, 1.f);
@@ -164,8 +167,8 @@ FFramePackage ULagCompensationComponent::InterpBetweenFrames(const FFramePackage
 
 		FCapsuleInfo InterpCapsuleInfo;
 
-		InterpCapsuleInfo.Location = FMath::Lerp(OlderInfo.Location, YoungerInfo.Location, HitTime);
-		InterpCapsuleInfo.Rotation = FMath::Lerp(OlderInfo.Rotation, YoungerInfo.Rotation, HitTime);
+		InterpCapsuleInfo.Location = FMath::Lerp(OlderInfo.Location, YoungerInfo.Location, InterpFraction);
+		InterpCapsuleInfo.Rotation = FMath::Lerp(OlderInfo.Rotation, YoungerInfo.Rotation, InterpFraction);
 		InterpCapsuleInfo.HalfHeight = YoungerInfo.HalfHeight;
 		InterpCapsuleInfo.Radius = YoungerInfo.Radius;
 
@@ -173,4 +176,77 @@ FFramePackage ULagCompensationComponent::InterpBetweenFrames(const FFramePackage
 	}
 	
 	return InterpFramePackage;
+}
+
+FServerSideRewindResult ULagCompensationComponent::ConfirmHit(const FFramePackage& Package,
+	ABlasterCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize& HitLocation) const
+{
+	if (HitCharacter == nullptr) return FServerSideRewindResult();
+
+	FFramePackage CurrentFrame;
+	CacheCapsulePositions(HitCharacter, CurrentFrame);
+	
+	MoveBoxes(HitCharacter, Package, true);
+
+	bool bSuccessfulHit = false, bWeakSpotHit = false;
+	
+	if (const UWorld* World = GetWorld())
+	{
+		FHitResult ConfirmHitResult;
+		const FVector TraceEnd = TraceStart + (HitLocation - TraceStart) * 1.25f;
+		
+		World->LineTraceSingleByChannel(ConfirmHitResult, TraceStart, TraceEnd, ECC_HitBox);
+
+		if (ConfirmHitResult.bBlockingHit)
+		{
+			bSuccessfulHit = true;
+			if (ConfirmHitResult.PhysMaterial.Get())
+			{
+				bWeakSpotHit = ConfirmHitResult.PhysMaterial.Get()->SurfaceType == EPS_Player_WeakSpot;
+			}
+		}
+	}
+	MoveBoxes(HitCharacter, CurrentFrame, false);
+	
+	return FServerSideRewindResult(bSuccessfulHit, bWeakSpotHit);
+}
+
+void ULagCompensationComponent::CacheCapsulePositions(const ABlasterCharacter* HitCharacter,
+	FFramePackage& OutFramePackage) const
+{
+	if (HitCharacter == nullptr) return;
+
+	for (const TPair<FName, TObjectPtr<UCapsuleComponent>>& HitPair : Character->HitCollisionCapsules)
+	{
+		if (HitPair.Value != nullptr)
+		{
+			FCapsuleInfo CapsuleInfo;
+			CapsuleInfo.Location = HitPair.Value->GetComponentLocation();
+			CapsuleInfo.Rotation = HitPair.Value->GetComponentRotation();
+			OutFramePackage.HitBoxInfo.Add(HitPair.Key, CapsuleInfo);
+		}
+	}
+}
+
+void ULagCompensationComponent::MoveBoxes(const ABlasterCharacter* HitCharacter, const FFramePackage& Package, const bool bEnableCollision) const
+{
+	if (HitCharacter == nullptr) return;
+
+	for (const TPair<FName, TObjectPtr<UCapsuleComponent>>& HitPair : Character->HitCollisionCapsules)
+	{
+		if (HitPair.Value != nullptr)
+		{
+			HitPair.Value->SetWorldLocation(Package.HitBoxInfo[HitPair.Key].Location);
+			HitPair.Value->SetWorldRotation(Package.HitBoxInfo[HitPair.Key].Rotation);
+			if (bEnableCollision)
+			{
+				HitPair.Value->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+				HitPair.Value->SetCollisionResponseToChannel(ECC_HitBox, ECR_Block);
+			}
+			else
+			{
+				HitPair.Value->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			}
+		}
+	}
 }

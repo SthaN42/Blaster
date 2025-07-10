@@ -40,6 +40,18 @@ struct FFramePackage
 	TMap<FName, FCapsuleInfo> HitBoxInfo;
 };
 
+USTRUCT(BlueprintType)
+struct FServerSideRewindResult
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	bool bHitConfirmed = false;
+
+	UPROPERTY()
+	bool bWeakSpot = false;
+};
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class BLASTER_API ULagCompensationComponent : public UActorComponent
 {
@@ -51,17 +63,23 @@ public:
 	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	void ShowFramePackage(const FFramePackage& Package, const FColor& Color, bool bPersistent = false);
+	void ShowFramePackage(const FFramePackage& Package, const FColor& Color, const bool bPersistent = false) const;
 
-	void ServerSideRewind(ABlasterCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize& HitLocation, float HitTime);
+	FServerSideRewindResult ServerSideRewind(ABlasterCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize& HitLocation, const float HitTime) const;
 
 protected:
 	virtual void BeginPlay() override;
 
 	void SaveFramePackage(FFramePackage& Package);
 
-	FFramePackage InterpBetweenFrames(const FFramePackage& OlderFrame, const FFramePackage& YoungerFrame, float HitTime);
+	static FFramePackage InterpBetweenFrames(const FFramePackage& OlderFrame, const FFramePackage& YoungerFrame, const float HitTime);
 
+	FServerSideRewindResult ConfirmHit(const FFramePackage& Package, ABlasterCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize& HitLocation) const;
+
+	void CacheCapsulePositions(const ABlasterCharacter* HitCharacter, FFramePackage& OutFramePackage) const;
+
+	void MoveBoxes(const ABlasterCharacter* HitCharacter, const FFramePackage& Package, const bool bEnableCollision) const;
+	
 private:
 	UPROPERTY()
 	TObjectPtr<ABlasterCharacter> Character;
