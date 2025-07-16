@@ -3,6 +3,7 @@
 
 #include "LagCompensationComponent.h"
 
+#include "Blaster/BlasterLogChannels.h"
 #include "Blaster/Character/BlasterCharacter.h"
 #include "Blaster/Physics/BlasterCollisionChannels.h"
 #include "Blaster/Weapon/Weapon.h"
@@ -233,7 +234,9 @@ FServerSideRewindResult ULagCompensationComponent::ConfirmHit(const FFramePackag
 		FHitResult ConfirmHitResult;
 		const FVector TraceEnd = TraceStart + (HitLocation - TraceStart) * 1.25f;
 
-		World->LineTraceSingleByChannel(ConfirmHitResult, TraceStart, TraceEnd, ECC_HitBox);
+		FCollisionQueryParams CollisionParams;
+		CollisionParams.bReturnPhysicalMaterial = true;
+		World->LineTraceSingleByChannel(ConfirmHitResult, TraceStart, TraceEnd, ECC_HitBox, CollisionParams);
 
 		bSuccessfulHit = ConfirmHitResult.bBlockingHit;
 		if (ConfirmHitResult.PhysMaterial.Get())

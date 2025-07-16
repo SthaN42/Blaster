@@ -135,6 +135,10 @@ void ABlasterCharacter::HitCapsulesConstruction()
 			
 			UCapsuleComponent* HitCapsule = NewObject<UCapsuleComponent>(this, UCapsuleComponent::StaticClass(), BoneName, RF_Transient);
 			HitCapsule->SetupAttachment(GetMesh(), BoneName);
+			HitCapsule->SetPhysMaterialOverride(BodySetup->GetPhysMaterial());
+			HitCapsule->SetCollisionObjectType(ECC_HitBox);
+			HitCapsule->SetCollisionResponseToAllChannels(ECR_Ignore);
+			HitCapsule->SetCollisionResponseToChannel(ECC_HitBox, ECR_Block);
 			HitCapsule->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 			HitCapsule->SetWorldTransform(WorldTransform);
 			HitCapsule->SetCapsuleSize(SphylElem.Radius, SphylElem.Length / 2.f + SphylElem.Radius);
