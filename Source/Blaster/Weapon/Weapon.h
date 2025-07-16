@@ -73,6 +73,7 @@ public:
 	FORCEINLINE float GetZoomInterpSpeed() const { return ZoomInterpSpeed; }
 
 	FORCEINLINE float GetDamage() const { return Damage; }
+	FORCEINLINE float GetCalculatedDamage(const bool bWeakSpot) const { return bWeakSpot ? Damage * WeakSpotMultiplier : Damage; }
 
 	FORCEINLINE int32 GetAmmo() const { return Ammo; }
 	FORCEINLINE int32 GetMagCapacity() const { return MagCapacity; }

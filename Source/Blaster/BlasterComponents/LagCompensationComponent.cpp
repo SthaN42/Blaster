@@ -62,7 +62,6 @@ void ULagCompensationComponent::SaveFramePackage()
 	}
 }
 
-
 void ULagCompensationComponent::SaveFramePackage(FFramePackage& Package)
 {
 	if (!Character) Character = Cast<ABlasterCharacter>(GetOwner());
@@ -79,6 +78,7 @@ void ULagCompensationComponent::SaveFramePackage(FFramePackage& Package)
 			
 			Package.HitBoxInfo.Add(CapsulePair.Key, CapsuleInfo);
 		}
+		Package.Character = Character;
 	}
 }
 
@@ -107,15 +107,32 @@ void ULagCompensationComponent::ServerScoreRequest_Implementation(ABlasterCharac
 	}
 }
 
-
 FServerSideRewindResult ULagCompensationComponent::ServerSideRewind(ABlasterCharacter* HitCharacter,
 	const FVector_NetQuantize& TraceStart, const FVector_NetQuantize& HitLocation, const float HitTime) const
+{
+	const FFramePackage FrameToCheck = GetFrameToCheck(HitCharacter, HitTime);
+	return ConfirmHit(FrameToCheck, HitCharacter, TraceStart, HitLocation);
+}
+
+FShotgunServerSideRewindResult ULagCompensationComponent::ServerSideRewind(
+	const TArray<ABlasterCharacter*>& HitCharacters, const FVector_NetQuantize& TraceStart,
+	const TArray<FVector_NetQuantize>& HitLocations, const float HitTime) const
+{
+	TArray<FFramePackage> FramesToCheck;
+	for (const ABlasterCharacter* HitCharacter : HitCharacters)
+	{
+		FramesToCheck.Add(GetFrameToCheck(HitCharacter, HitTime));
+	}
+	return ConfirmHit(FramesToCheck, TraceStart, HitLocations);
+}
+
+FFramePackage ULagCompensationComponent::GetFrameToCheck(const ABlasterCharacter* HitCharacter, const float HitTime)
 {
 	if (HitCharacter == nullptr ||
 		HitCharacter->GetLagCompensation() == nullptr ||
 		HitCharacter->GetLagCompensation()->FrameHistory.GetHead() == nullptr ||
 		HitCharacter->GetLagCompensation()->FrameHistory.GetTail() == nullptr)
-		return FServerSideRewindResult();
+		return FFramePackage();
 
 	// Frame Package that we check to verify a hit
 	FFramePackage FrameToCheck;
@@ -131,7 +148,7 @@ FServerSideRewindResult ULagCompensationComponent::ServerSideRewind(ABlasterChar
 	if (OldestHistoryTime > HitTime)
 	{
 		// Too far back - too laggy to perform SSR
-		return FServerSideRewindResult();
+		return FFramePackage();
 	}
 	if (OldestHistoryTime == HitTime)
 	{
@@ -169,7 +186,7 @@ FServerSideRewindResult ULagCompensationComponent::ServerSideRewind(ABlasterChar
 		FrameToCheck = InterpBetweenFrames(OlderFrame->GetValue(), YoungerFrame->GetValue(), HitTime);
 	}
 
-	return ConfirmHit(FrameToCheck, HitCharacter, TraceStart, HitLocation);
+	return FrameToCheck;
 }
 
 FFramePackage ULagCompensationComponent::InterpBetweenFrames(const FFramePackage& OlderFrame,
@@ -227,6 +244,12 @@ FServerSideRewindResult ULagCompensationComponent::ConfirmHit(const FFramePackag
 	MoveBoxes(HitCharacter, CurrentFrame, false);
 
 	return FServerSideRewindResult(bSuccessfulHit, bWeakSpotHit);
+}
+
+FShotgunServerSideRewindResult ULagCompensationComponent::ConfirmHit(const TArray<FFramePackage>& Packages,
+	const FVector_NetQuantize& TraceStart, const TArray<FVector_NetQuantize>& HitLocations) const
+{
+	return FShotgunServerSideRewindResult();
 }
 
 void ULagCompensationComponent::CacheCapsulePositions(const ABlasterCharacter* HitCharacter,
