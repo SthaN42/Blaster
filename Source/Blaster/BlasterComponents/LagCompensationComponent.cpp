@@ -3,6 +3,7 @@
 
 #include "LagCompensationComponent.h"
 
+#include "MovieSceneSequencePlayer.h"
 #include "Blaster/BlasterLogChannels.h"
 #include "Blaster/Character/BlasterCharacter.h"
 #include "Blaster/Physics/BlasterCollisionChannels.h"
@@ -224,7 +225,6 @@ FServerSideRewindResult ULagCompensationComponent::ConfirmHit(const FFramePackag
 
 	FFramePackage CurrentFrame;
 	CacheCapsulePositions(HitCharacter, CurrentFrame);
-
 	MoveBoxes(HitCharacter, Package, true);
 
 	bool bSuccessfulHit = false, bWeakSpotHit = false;
@@ -252,7 +252,74 @@ FServerSideRewindResult ULagCompensationComponent::ConfirmHit(const FFramePackag
 FShotgunServerSideRewindResult ULagCompensationComponent::ConfirmHit(const TArray<FFramePackage>& Packages,
 	const FVector_NetQuantize& TraceStart, const TArray<FVector_NetQuantize>& HitLocations) const
 {
-	return FShotgunServerSideRewindResult();
+	FShotgunServerSideRewindResult ShotgunResult;
+
+	// Cache current positions and move hit characters capsules
+	TArray<FFramePackage> CurrentFrames;
+	for (const FFramePackage& Package : Packages)
+	{
+		FFramePackage CurrentFrame;
+		CurrentFrame.Character = Package.Character;
+		CacheCapsulePositions(Package.Character, CurrentFrame);
+		MoveBoxes(Package.Character, Package, true);
+		CurrentFrames.Add(CurrentFrame);
+	}
+
+	// Confirm hit for each hit location
+	const UWorld* World = GetWorld();
+	for (const FVector_NetQuantize& HitLocation : HitLocations)
+	{
+		if (World)
+		{
+			FHitResult ConfirmHitResult;
+			const FVector TraceEnd = TraceStart + (HitLocation - TraceStart) * 1.25f;
+
+			World->LineTraceSingleByChannel(ConfirmHitResult, TraceStart, TraceEnd, ECC_HitBox);
+
+			if (!ConfirmHitResult.bBlockingHit) continue;
+
+			// Check is this hit was on a weak spot
+			bool bWeakSpotHit = false;
+			if (ConfirmHitResult.PhysMaterial.Get())
+			{
+				bWeakSpotHit = ConfirmHitResult.PhysMaterial.Get()->SurfaceType == EPS_Player_WeakSpot;
+			}
+
+			// Add the hit to the correct TMap on the result
+			if (ABlasterCharacter* HitBlasterCharacter = Cast<ABlasterCharacter>(ConfirmHitResult.GetActor()))
+			{
+				if (bWeakSpotHit)
+				{
+					if (ShotgunResult.WeakSpotShots.Contains(HitBlasterCharacter))
+					{
+						ShotgunResult.WeakSpotShots[HitBlasterCharacter]++;
+					}
+					else
+					{
+						ShotgunResult.WeakSpotShots.Emplace(HitBlasterCharacter, 1);
+					}
+				}
+				else
+				{
+					if (ShotgunResult.BodyShots.Contains(HitBlasterCharacter))
+					{
+						ShotgunResult.BodyShots[HitBlasterCharacter]++;
+					}
+					else
+					{
+						ShotgunResult.BodyShots.Emplace(HitBlasterCharacter, 1);
+					}
+				}
+			}
+		}
+	}
+	// Move back capsules to current positions
+	for (const FFramePackage& CurrentFrame : CurrentFrames)
+	{
+		MoveBoxes(CurrentFrame.Character, CurrentFrame, false);
+	}
+
+	return ShotgunResult;
 }
 
 void ULagCompensationComponent::CacheCapsulePositions(const ABlasterCharacter* HitCharacter,
