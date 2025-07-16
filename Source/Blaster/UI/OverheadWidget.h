@@ -16,6 +16,7 @@ class BLASTER_API UOverheadWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
+	UFUNCTION(BlueprintCallable)
 	void SetDisplayText(const FString& TextToDisplay) const;
 
 	UFUNCTION(BlueprintCallable)

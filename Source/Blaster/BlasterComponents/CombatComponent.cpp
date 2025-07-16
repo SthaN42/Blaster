@@ -396,7 +396,6 @@ void UCombatComponent::FinishReload()
 
 	bLocallyReloading = false;
 
-	//TODO: Sometimes (seemingly with packet loss), this isn't called on the server, which causes the client to get stuck in the Reloading State
 	if (Character->HasAuthority())
 	{
 		CombatState = ECombatState::ECS_Unoccupied;
