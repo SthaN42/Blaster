@@ -3,8 +3,6 @@
 
 #include "LagCompensationComponent.h"
 
-#include "MovieSceneSequencePlayer.h"
-#include "Blaster/BlasterLogChannels.h"
 #include "Blaster/Character/BlasterCharacter.h"
 #include "Blaster/Physics/BlasterCollisionChannels.h"
 #include "Blaster/Weapon/Weapon.h"
@@ -99,13 +97,34 @@ void ULagCompensationComponent::ShowFramePackage(const FFramePackage& Package, c
 	}
 }
 
-void ULagCompensationComponent::ServerScoreRequest_Implementation(ABlasterCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize& HitLocation, const float HitTime, AWeapon* DamageCauser)
+void ULagCompensationComponent::ServerScoreRequest_Implementation(ABlasterCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize& HitLocation, const float HitTime) const
 {
-	FServerSideRewindResult Confirm = ServerSideRewind(HitCharacter, TraceStart, HitLocation, HitTime);
+	const FServerSideRewindResult Confirm = ServerSideRewind(HitCharacter, TraceStart, HitLocation, HitTime);
 
-	if (Character && HitCharacter && DamageCauser && Confirm.bHitConfirmed)
+	if (Character && HitCharacter && Character->GetEquippedWeapon() && Confirm.bHitConfirmed)
 	{
-		UGameplayStatics::ApplyDamage(HitCharacter, DamageCauser->GetDamage(), Character->Controller, DamageCauser, UDamageType::StaticClass());
+		UGameplayStatics::ApplyDamage(HitCharacter, Character->GetEquippedWeapon()->GetCalculatedDamage(Confirm.bWeakSpot), Character->Controller, Character->GetEquippedWeapon(), UDamageType::StaticClass());
+	}
+}
+
+void ULagCompensationComponent::ServerShotgunScoreRequest_Implementation(const TArray<ABlasterCharacter*>& HitCharacters, const FVector_NetQuantize& TraceStart, const TArray<FVector_NetQuantize>& HitLocations, const float HitTime) const
+{
+	const FShotgunServerSideRewindResult Confirm = ServerSideRewind(HitCharacters, TraceStart, HitLocations, HitTime);
+
+	for (ABlasterCharacter* HitCharacter : HitCharacters)
+	{
+		if (HitCharacter == nullptr || Character == nullptr || Character->GetEquippedWeapon() == nullptr) continue;
+		
+		float TotalDamage = 0.f;
+		if (Confirm.BodyShots.Contains(HitCharacter))
+		{
+			TotalDamage += Confirm.BodyShots[HitCharacter] * Character->GetEquippedWeapon()->GetCalculatedDamage(false);
+		}
+		if (Confirm.WeakSpotShots.Contains(HitCharacter))
+		{
+			TotalDamage += Confirm.WeakSpotShots[HitCharacter] * Character->GetEquippedWeapon()->GetCalculatedDamage(true);
+		}
+		UGameplayStatics::ApplyDamage(HitCharacter, TotalDamage, Character->Controller, Character->GetEquippedWeapon(), UDamageType::StaticClass());
 	}
 }
 
@@ -121,14 +140,14 @@ FShotgunServerSideRewindResult ULagCompensationComponent::ServerSideRewind(
 	const TArray<FVector_NetQuantize>& HitLocations, const float HitTime) const
 {
 	TArray<FFramePackage> FramesToCheck;
-	for (const ABlasterCharacter* HitCharacter : HitCharacters)
+	for (ABlasterCharacter* HitCharacter : HitCharacters)
 	{
 		FramesToCheck.Add(GetFrameToCheck(HitCharacter, HitTime));
 	}
 	return ConfirmHit(FramesToCheck, TraceStart, HitLocations);
 }
 
-FFramePackage ULagCompensationComponent::GetFrameToCheck(const ABlasterCharacter* HitCharacter, const float HitTime)
+FFramePackage ULagCompensationComponent::GetFrameToCheck(ABlasterCharacter* HitCharacter, const float HitTime)
 {
 	if (HitCharacter == nullptr ||
 		HitCharacter->GetLagCompensation() == nullptr ||
@@ -187,7 +206,7 @@ FFramePackage ULagCompensationComponent::GetFrameToCheck(const ABlasterCharacter
 	{
 		FrameToCheck = InterpBetweenFrames(OlderFrame->GetValue(), YoungerFrame->GetValue(), HitTime);
 	}
-
+	FrameToCheck.Character = HitCharacter;
 	return FrameToCheck;
 }
 

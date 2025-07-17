@@ -63,7 +63,7 @@ struct FShotgunServerSideRewindResult
 
 	UPROPERTY()
 	TMap<TObjectPtr<ABlasterCharacter>, uint32> BodyShots;
-	
+
 	UPROPERTY()
 	TMap<TObjectPtr<ABlasterCharacter>, uint32> WeakSpotShots;
 };
@@ -76,7 +76,7 @@ class BLASTER_API ULagCompensationComponent : public UActorComponent
 public:	
 	ULagCompensationComponent();
 	friend ABlasterCharacter;
-	
+
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	void ShowFramePackage(const FFramePackage& Package, const FColor& Color, const bool bPersistent = false) const;
@@ -86,9 +86,14 @@ public:
 
 	/** Shotgun version of Server-Side Rewind */
 	FShotgunServerSideRewindResult ServerSideRewind(const TArray<ABlasterCharacter*>& HitCharacters, const FVector_NetQuantize& TraceStart, const TArray<FVector_NetQuantize>& HitLocations, const float HitTime) const;
-	
+
+	/** HitScan version of Score Request */
 	UFUNCTION(Server, Reliable)
-	void ServerScoreRequest(ABlasterCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize& HitLocation, const float HitTime, AWeapon* DamageCauser);
+	void ServerScoreRequest(ABlasterCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize& HitLocation, const float HitTime) const;
+
+	/** Shotgun version of Score Request */
+	UFUNCTION(Server, Reliable)
+	void ServerShotgunScoreRequest(const TArray<ABlasterCharacter*>& HitCharacters, const FVector_NetQuantize& TraceStart, const TArray<FVector_NetQuantize>& HitLocations, const float HitTime) const;
 
 protected:
 	virtual void BeginPlay() override;
@@ -101,7 +106,7 @@ protected:
 
 	/** HitScan version of ConfirmHit, used in the HitScan version of SSR */
 	FServerSideRewindResult ConfirmHit(const FFramePackage& Package, ABlasterCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize& HitLocation) const;
-	
+
 	/** Shotgun version of ConfirmHit, used in the Shotgun version of SSR */
 	FShotgunServerSideRewindResult ConfirmHit(const TArray<FFramePackage>& Packages, const FVector_NetQuantize& TraceStart, const TArray<FVector_NetQuantize>& HitLocations) const;
 
@@ -109,12 +114,12 @@ protected:
 
 	void MoveBoxes(const ABlasterCharacter* HitCharacter, const FFramePackage& Package, const bool bEnableCollision) const;
 
-	static FFramePackage GetFrameToCheck(const ABlasterCharacter* HitCharacter, const float HitTime);
-	
+	static FFramePackage GetFrameToCheck(ABlasterCharacter* HitCharacter, const float HitTime);
+
 private:
 	UPROPERTY()
 	TObjectPtr<ABlasterCharacter> Character;
-	
+
 	UPROPERTY()
 	TObjectPtr<ABlasterPlayerController> Controller;
 

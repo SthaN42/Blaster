@@ -46,13 +46,13 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 			}
 			if (!HasAuthority() && bUseServerSideRewind)
 			{
-				if (GetOwnerCharacter() && GetOwnerController() && GetOwnerCharacter()->GetLagCompensation())
+				if (GetOwnerCharacter() && GetOwnerCharacter()->IsLocallyControlled() && GetOwnerController() && GetOwnerCharacter()->GetLagCompensation())
 				{
-					GetOwnerCharacter()->GetLagCompensation()->ServerScoreRequest(BlasterCharacter,
+					GetOwnerCharacter()->GetLagCompensation()->ServerScoreRequest(
+						BlasterCharacter,
 						Start,
 						HitTarget,
-						GetOwnerController()->GetServerTime() - GetOwnerController()->SingleTripTime,
-						this);
+						GetOwnerController()->GetServerTime() - GetOwnerController()->SingleTripTime);
 				}
 			}
 		}

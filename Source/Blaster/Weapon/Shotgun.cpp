@@ -3,7 +3,9 @@
 
 #include "Shotgun.h"
 
+#include "Blaster/BlasterComponents/LagCompensationComponent.h"
 #include "Blaster/Character/BlasterCharacter.h"
+#include "Blaster/Player/BlasterPlayerController.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -51,12 +53,28 @@ void AShotgun::FireShotgun(const TArray<FVector_NetQuantize>& HitTargets)
 				UGameplayStatics::PlaySoundAtLocation(this, HitSound, FireHit.ImpactPoint, .5f, FMath::FRandRange(.8f, 1.2f));
 			}
 		}
-		
+
+		TArray<ABlasterCharacter*> HitCharacters;
 		for (auto HitPair : HitMap)
 		{
-			if (HitPair.Key && HasAuthority() && InstigatorController)
+			if (HitPair.Key && InstigatorController)
 			{
-				UGameplayStatics::ApplyDamage(HitPair.Key, Damage * HitPair.Value, InstigatorController, this, UDamageType::StaticClass());
+				if (HasAuthority() && !bUseServerSideRewind)
+				{
+					UGameplayStatics::ApplyDamage(HitPair.Key, Damage * HitPair.Value, InstigatorController, this, UDamageType::StaticClass());
+				}
+				HitCharacters.Add(HitPair.Key);
+			}
+		}
+		if (!HasAuthority() && bUseServerSideRewind)
+		{
+			if (GetOwnerCharacter() && GetOwnerCharacter()->IsLocallyControlled() && GetOwnerController() && GetOwnerCharacter()->GetLagCompensation())
+			{
+				GetOwnerCharacter()->GetLagCompensation()->ServerShotgunScoreRequest(
+					HitCharacters,
+					Start,
+					HitTargets,
+					GetOwnerController()->GetServerTime() - GetOwnerController()->SingleTripTime);
 			}
 		}
 	}
