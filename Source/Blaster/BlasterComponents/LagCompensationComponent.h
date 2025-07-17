@@ -110,9 +110,9 @@ protected:
 	/** Shotgun version of ConfirmHit, used in the Shotgun version of SSR */
 	FShotgunServerSideRewindResult ConfirmHit(const TArray<FFramePackage>& Packages, const FVector_NetQuantize& TraceStart, const TArray<FVector_NetQuantize>& HitLocations) const;
 
-	void CacheCapsulePositions(const ABlasterCharacter* HitCharacter, FFramePackage& OutFramePackage) const;
+	static void CacheCapsulePositions(const ABlasterCharacter* HitCharacter, FFramePackage& OutFramePackage);
 
-	void MoveBoxes(const ABlasterCharacter* HitCharacter, const FFramePackage& Package, const bool bEnableCollision) const;
+	static void MoveBoxes(const ABlasterCharacter* HitCharacter, const FFramePackage& Package, const bool bEnableCollision);
 
 	static FFramePackage GetFrameToCheck(ABlasterCharacter* HitCharacter, const float HitTime);
 

@@ -111,7 +111,7 @@ void ULagCompensationComponent::ServerShotgunScoreRequest_Implementation(const T
 {
 	const FShotgunServerSideRewindResult Confirm = ServerSideRewind(HitCharacters, TraceStart, HitLocations, HitTime);
 
-	for (ABlasterCharacter* HitCharacter : HitCharacters)
+	for (auto& HitCharacter : HitCharacters)
 	{
 		if (HitCharacter == nullptr || Character == nullptr || Character->GetEquippedWeapon() == nullptr) continue;
 		
@@ -293,7 +293,9 @@ FShotgunServerSideRewindResult ULagCompensationComponent::ConfirmHit(const TArra
 			FHitResult ConfirmHitResult;
 			const FVector TraceEnd = TraceStart + (HitLocation - TraceStart) * 1.25f;
 
-			World->LineTraceSingleByChannel(ConfirmHitResult, TraceStart, TraceEnd, ECC_HitBox);
+			FCollisionQueryParams CollisionParams;
+			CollisionParams.bReturnPhysicalMaterial = true;
+			World->LineTraceSingleByChannel(ConfirmHitResult, TraceStart, TraceEnd, ECC_HitBox, CollisionParams);
 
 			if (!ConfirmHitResult.bBlockingHit) continue;
 
@@ -342,11 +344,11 @@ FShotgunServerSideRewindResult ULagCompensationComponent::ConfirmHit(const TArra
 }
 
 void ULagCompensationComponent::CacheCapsulePositions(const ABlasterCharacter* HitCharacter,
-	FFramePackage& OutFramePackage) const
+	FFramePackage& OutFramePackage)
 {
 	if (HitCharacter == nullptr) return;
 
-	for (const TPair<FName, TObjectPtr<UCapsuleComponent>>& HitPair : Character->HitCollisionCapsules)
+	for (const TPair<FName, TObjectPtr<UCapsuleComponent>>& HitPair : HitCharacter->HitCollisionCapsules)
 	{
 		if (HitPair.Value != nullptr)
 		{
@@ -358,11 +360,11 @@ void ULagCompensationComponent::CacheCapsulePositions(const ABlasterCharacter* H
 	}
 }
 
-void ULagCompensationComponent::MoveBoxes(const ABlasterCharacter* HitCharacter, const FFramePackage& Package, const bool bEnableCollision) const
+void ULagCompensationComponent::MoveBoxes(const ABlasterCharacter* HitCharacter, const FFramePackage& Package, const bool bEnableCollision)
 {
 	if (HitCharacter == nullptr) return;
 
-	for (const TPair<FName, TObjectPtr<UCapsuleComponent>>& HitPair : Character->HitCollisionCapsules)
+	for (const TPair<FName, TObjectPtr<UCapsuleComponent>>& HitPair : HitCharacter->HitCollisionCapsules)
 	{
 		if (HitPair.Value != nullptr)
 		{
