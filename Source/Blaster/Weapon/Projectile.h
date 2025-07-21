@@ -23,6 +23,15 @@ public:
 
 	virtual void Destroyed() override;
 
+	/* Used for Server-Side Rewind */
+
+	bool bUserServerSideRewind = false;
+	FVector_NetQuantize TraceSart;
+	FVector_NetQuantize100 InitialVelocity;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
+	float InitialSpeed = 15000.f;
+
 protected:
 	virtual void BeginPlay() override;
 
