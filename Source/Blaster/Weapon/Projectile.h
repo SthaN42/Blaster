@@ -19,6 +19,11 @@ class BLASTER_API AProjectile : public AActor
 	
 public:	
 	AProjectile();
+
+#if WITH_EDITOR
+	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent) override;
+#endif
+
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void Destroyed() override;

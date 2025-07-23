@@ -46,6 +46,19 @@ void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 	DOREPLIFETIME(AWeapon, WeaponState);
 }
 
+void AWeapon::PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent)
+{
+	Super::PostEditChangeProperty(PropertyChangedEvent);
+
+	const FName PropertyName = PropertyChangedEvent.GetPropertyName();
+
+	if (PropertyName == GET_MEMBER_NAME_CHECKED(AWeapon, HighlightColor))
+	{
+		WeaponMesh->SetCustomDepthStencilValue(*HighlightColor);
+		WeaponMesh->MarkRenderStateDirty();
+	}
+}
+
 void AWeapon::OnRep_Owner()
 {
 	Super::OnRep_Owner();
