@@ -24,7 +24,7 @@ enum class EHighlightColor
 	Blue = 251 UMETA(DisplayName = "Blue"),
 	Tan = 252 UMETA(DisplayName = "Tan"),
 
-	Max UMETA(DisplayName = "Max")
+	Max UMETA(Hidden)
 };
 
 // Dirty way to get the actual value stored in the EHighlightColor enum

@@ -37,6 +37,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
 	float InitialSpeed = 15000.f;
 
+	/* Setters / Getters */
+
+	FORCEINLINE void SetBaseDamage(const float InDamage) { BaseDamage = InDamage; }
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -60,8 +64,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile|Damage")
 	bool bIsRadialDamage = false;
 
-	/** The default amount of damage dealt */
-	UPROPERTY(EditDefaultsOnly, Category = "Projectile|Damage")
+	/** The default amount of damage dealt, set by the weapon when spawning this projectile */
+	UPROPERTY(VisibleDefaultsOnly, Category = "Projectile|Damage")
 	float BaseDamage = 20.f;
 
 	/** Minimum amount of damage dealt (at the end of the falloff) */
